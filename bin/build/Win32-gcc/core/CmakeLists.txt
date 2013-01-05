@@ -1,0 +1,49 @@
+# The file is part of WitchEngine.
+# Copyright (C) 2012 The Team Entertainment
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+cmake_minimum_required(VERSION 2.8) # Setting the minimum version requires.
+
+project(WitchCore)	# Setting the name of the project.
+
+# Setting the ouput directory.
+set(LIBRARY_OUTPUT_PATH ../../../${CMAKE_BUILD_TYPE})
+
+# Setting variable needed for compilation.
+set(CMAKE_CXX_FLAGS "-std=c++0x -mtune=core2 -msse4.2 -mfpmath=sse -masm=intel")
+set(CMAKE_CXX_FLAGS_RELEASE "-O2 -s")
+set(CMAKE_CXX_FLAGS_DEBUG "-g")
+
+add_definitions(-DWITCHENGINE_MAKEDLL -DWITCHENGINE_BUILD_CORE_LIB)
+
+include_directories(../../../../include)
+
+# Getting files which we want to compile.
+file(
+	GLOB
+	source_files
+	../../../../src/core/global/*
+	../../../../src/core/io/*
+	../../../../src/core/io/Win32/*
+	../../../../src/core/kernel/*
+	../../../../src/core/math/*
+)
+
+# Declaring the library.
+add_library(
+	WitchCore
+	SHARED
+	${source_files}
+)
