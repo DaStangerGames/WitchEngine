@@ -1,0 +1,517 @@
+# Kernel
+
+Feature: CXX0X_SUPPORT
+Description: Implements replacements functionnality to make the code valid under a compiler that doesn't support C++0x standard.
+Section: Kernel
+Requires:
+Name:
+See Also: ???
+
+Feature: DYNAMIC_PROPOERTIES
+Description: Define dynamic properties. 
+Section: Kernel
+Requires:
+Name: DynamicProperties
+See Also: ???
+
+Feature: TEXTHTMLPARSER
+Description: Define a HTML parser.
+Section: Kernel
+Requires:
+Name: HtmlParser
+See Also: ???
+
+Feature: CSSPARSER
+Description: Define a CSS parser.
+Section: Kernel
+Requires:
+Name: CssParser
+See Also: ???
+
+Feature: SHARED_MEMORY
+Description: Provides access to a shared memory segment.
+Section: Kernel
+Requires:
+Name: SharedMemory
+See Also: ???
+
+Feature: DEBUG_MEMORY_ALLOCATOR
+Description: Define a specific memory allocator for debug mode.
+Section: Kernel
+Requires:
+Name: DebugMemoryAllocator
+See Also: ???
+
+Feature: SMALLOBJECT_MEMORY_ALLOCATOR
+Description: Define a specific memory allocator for small objects.
+Section: Kernel
+Requires:
+Name: SmallObjectMemoryAllocator
+See Also: ???
+
+Feature: ALIGNED_MEMORY_ALLOCATOR
+Description: Define a specific memory allocator for aligned memory.
+Section: Kernel
+Requires:
+Name: AlignedMemoryAllocator
+See Also: ???
+
+Feature: MOUSE_EVENT
+Description: Support mouse events.
+Section: Kernel
+Required:
+Name: MouseEvent
+See Also: ???
+
+Feature: KEYBOARD_EVENT
+Description: Support keyboard events.
+Section: Kernel
+Required:
+Name: KeyboardEvent
+See Also: ???
+
+Feature: TABLET_EVENT
+Description: Support tablet events.
+Section: Kernel
+Required:
+Name: TabletEvent
+See Also: ???
+
+Feature: JOYSTICK_EVENT
+Description: Support joystick events.
+Section: Kernel
+Required:
+Name: JoystickEvent
+See Also: ???
+
+Feature: CURSOR
+Description: Support mouse cursor.
+Section: Kernel
+Required:
+Name: Cursor
+See Also: ???
+
+Feature: EXTERNAL_MODULES_LOADER
+Description: Provides a loading system for external modules.
+Section: Kernel
+Required:
+Name: Plugin/IModule
+See Also: ???
+
+Feature: UNICODE_SUPPORT
+Description: Support for unicode strings.
+Section: Kernel
+Requires:
+Name: UnicodeString
+See Also: ???
+
+Feature: ON_THE_FLY_RENDERER_LOADING
+Description: Provides a complete system to change the current renderer on the fly.
+Section: Kernel
+Requires: EXTERNAL_MODULES_LOADER
+Name: 
+See Also: ???
+
+Feature: XMLREADER
+Description: Provides a way to read XML files.
+Section: Kernel
+Requires:
+Name: XMLReader
+See Also: ???
+
+Feature: XMLWRITER
+Description: Provides a way to write into XML files.
+Section: Kernel
+Requires:
+Name: XMLWriter
+See Also: ???
+
+# Mathematics
+
+Feature: META_MATHFUNCTIONS
+Description: Provides compiler-accelerated mathematic functionnalities.
+Section: Mathematics
+Requires:
+Name: MetaVariable/MetaVector/MetaMatrix/MetaConstant
+See Also: ???
+
+Feature: MATHFUNCTIONS
+Description: Provides run-time basic math functionnalities.
+Section: Mathematics
+Requires:
+Name: Vector2D/Vector3D/Vector3D/Matrix3x3/Matrix4x4/Quaternion
+See Also: ???
+
+Feature: META_EQUATION
+Description: Provides compiler-accelerated mathematic functionnalities.
+Section: Mathematics
+Requires: META_MATHFUNCTIONS MATHFUNCTIONS
+Name: MetaEquation
+See Also: ???
+
+Feature: EQUATIONPARSER
+Description: Define an Equation parser.
+Section: Mathematics
+Requires: META_EQUATION
+Name: EquationParser
+See Also: ???
+
+Feature: OPTIMIZED_MATHFUNCTIONS
+Description: Define optimozed math functionnalities with SSE/3dNow!/MMX instrcutions.
+Section: Mathematics
+Requires:
+Name: UnifiedInstruction
+See Also: ???
+
+# Data structures
+
+Feature: STL
+Description: Supports standard template library compatiblity.
+Section: Data Structures
+Requires:
+Name: Standard Template Library
+See Also: ???
+
+Feature: OPTIMIZED_DATASTRUCTURES
+Description: Provides optimized data structures.
+Section: Data structures
+Requires:
+Name: List/Map/LinkedList/Queue/Stack/Vector/...
+See Also: ???
+
+Feature: SCENEGRAPH_STRUCTURES
+Description: Provides data structures to manage the scene graph entities.
+Section: Data Structures
+Requires:
+Name: Octree
+See Also: ???
+
+# Graphical User Interface
+
+Feature: QT_SUPPORT
+Description: Provides supports for Qt.
+Section: Graphical User Interface
+Requires:
+Name: QtSupport
+See Also: ???
+
+Feature: PUSHBUTTON
+Description: Provides a specific implementation of push button.
+Section: Graphical User Interface
+Requires:
+Name: PushButton
+See Also: ???
+
+Feature: CHECKBOX
+Descirption: Provides a specific implementation of check box.
+Section:
+Requires:
+Name: CheckBox
+See Also: ???
+
+Feature: COMBOBOX
+Description: Provides a specific implementation of combo box.
+Section: Graphical User Interface
+Requires:
+Name: ComboBox
+See Also: ???
+
+Feature: LINEEDIT
+Description: Provides a specific implementation of line edit.
+Section: Graphical User Interface
+Requires:
+Name: LineEdit
+See Also: ???
+
+Feature: RADIOBUTTON
+Description: Provides a specific implementation of radio button.
+Section: Graphical User Interface
+Requires:
+Name: RadioButton
+See Also: ???
+
+Feature: SPINBOX
+Descirption: Provides a specific implementation of spin box.
+Section: Graphical User Interface
+Requires:
+Name: SpinBox
+See Also: ???
+
+Feature: LAYOUT
+Description: Provides a specific implementation of layout.
+Section: Graphical User Interface
+Requires:
+Name: Layout/VerticalLayout/HorizontalLayout
+See Also: ???
+
+Feature: BUTTON_GROUP
+Description: Provides a specific implementation of button group.
+Section: Graphical User Interface
+Requires:
+Name: ButtonGroup
+See Also: ???
+
+Feature: GROUPBOX
+Description: Provides a specific implementation of group box.
+Section: Graphical User Interface
+Requires:
+Name: GroupBox
+See Alo: ???
+
+# Image
+
+Feature: IMAGEFORMAT_PNG
+Description: Supports the PNG image file format.
+Section: Image Formats
+Requires:
+Name: PNG Image Format
+See Also: ???
+
+Feature: IMAGEFORMAT_JPEG
+Description: Supports the JPEG image file format.
+Section: Image Formats
+Requires:
+Name: JPEG Image Format
+See Also: ???
+
+Feature: IMAGEFORMAT_BMP
+Description: Support the BMP image file format.
+Section: Image Formats
+Requires:
+Name: BMP Image Format
+See Also: ???
+
+# Sound
+
+Feature: AUDIOFORMAT_MP3
+Description: Support the MP3 audio file format.
+Section: Sound Formats
+Requires:
+Name: MP3 Sound Format
+See Also: ???
+
+Feature: AUDIOFORMAT_OGGVORBIS
+Description: Support the Ogg Vorbis audio file format.
+Section: Sound Formats
+Requires:
+Name: Ogg Vorbis Sound Format
+See Also: ???
+
+Feature: AUDIOFORMAT_AAC
+Description: Support the AAC audio file format.
+Section: Sound Formats
+Requires:
+Name: AAC Sound Format
+See Also: ???
+
+Feature: AUDIOFORMAT_FLAC
+Description: Support the FLAC audio file format.
+Section: Sound Formats
+Requires:
+Name: FLAC Sound Formats
+See Also: ???
+
+# 3D models formats
+
+Feature: MODELFORMAT_COLLADA
+Description: Supports the Collada model file format.
+Section: 3D Model Formats
+Requires: XML_READER && XML_WRITER
+Name: Collada Model Format
+See Also: ???
+
+Feature: MODELFORMAT_3DS
+Description: Supports the 3DS model file format.
+Section: 3D Model Formats
+Requires:
+Name: 3DS Model Format
+See Also: ???
+
+Feature: MODELFORMAT_MD2
+Description: Supports the MD2 model file format.
+Section: 3D Model Formats
+Requires:
+Name: MD2 Model Format
+See Also: ???
+
+Feature: MODELFORMAT_MD3
+Description: Supports the MD3 model file format.
+Section: 3D Model Formats
+Requires:
+Name: MD3 Model Format
+See Also: ???
+
+Feature: MODELFORMAT_MD5
+Description: Supports the MD5 model file format.
+Section: 3D Model Formats
+Requires:
+Name: MD5 Model Format
+See Also: ???
+
+# OpenGL
+
+Feature: OPENGL_RENDERER
+Description: Support for OpenGL.
+Section: OpenGL
+Requires: EXTERNAL_MODULES_LOADER
+Name: OpenGL Renderer
+See Also: ???
+
+Feature: OPENGLES_RENDERER
+Description: Support for OpenGL/ES.
+Section: OpenGL
+Requires: EXTERNAL_MODULES_LOADER
+Name: OpenGL/ES Renderer
+See Also: ???
+
+# DirectX
+
+Feature: DIRECTX9_RENDERER
+Description: Support for DirectX 9 API.
+Section: DirectX
+Requires: EXTERNAL_MODULES_LOADER
+Name: DirectX 9 Renderer
+See Also: ???
+
+Feature: DIRECTX10_RENDERER
+Description: Support for DirectX 10 API.
+Section: DirectX
+Requires: EXTERNAL_MODULES_LOADER
+Name: DirectX 10 Renderer
+See Also: ???
+
+Feature: DIRECTX11_RENDERER
+Description: Support for DirectX 11 API.
+Section: DirectX
+Requires: EXTERNAL_MODULES_LOADER
+Name: DirectX 11 Renderer
+See Also: ???
+
+# Shaders
+
+Feature: VERTEX_SHADER
+Description: Support vertex shader.
+Section:
+Requires: OPENGL_RENDERER | OPENGLES_RENDERER | DIRECTX9_RENDERER | DIRECTX10_RENDERER | DIRECTX11_RENDERER
+Name:
+See Also: ???
+
+Feature: FRAGMENT_SHADER
+Description: Support fragments shader.
+Section:
+Requires: OPENGL_RENDERER | OPENGLES_RENDERER | DIRECTX9_RENDERER | DIRECTX10_RENDERER | DIRECTX11_RENDERER
+Name:
+See Also: ???
+
+Feature: GEOMETRY_SHADER
+Description: Support geometry shader.
+Section:
+Requires: OPENGL_RENDERER | OPENGLES_RENDERER | DIRECTX10_RENDERER | DIRECTX11_RENDERER
+Name:
+See Also: ???
+
+Feature: COMPUTE_SHADER
+Description: Support compute shader.
+Section:
+Requires: OPENGL_RENDERER | DIRECTX11_RENDERER
+Name:
+See Also: ???
+
+# Ray-tracing renderer
+
+Feature: RAYTRACING_RENDERER
+Description: Provides a ray-tracing renderer.
+Section: Ray-tracing renderer
+Requires: EXTERNAL_MODULES_LOADER
+Name: Ray-tracing Renderer
+See Also: ???
+
+# Physics
+
+Feature: PHYSIC
+Description: Provides classes to support Physic laws.
+Section: Physic
+Requires:
+Name: WitchPhysic module
+See Also: ???
+
+Feature: MATH_MODELS
+Description: Provides a way to mathematic models to simulate the comportements of a physic system.
+Section: Physic
+Requires: PHYSIC EQUATIONPARSER
+Name: MathModel
+See Also: ???
+
+Feature: MECHANICAL_SIMULATION
+Description: Provides tools to work on mechanical simulations.
+Section: Physic
+Requires: PHYSIC & MATH_MODELS
+Name: MechicalSimulator
+See Also: ???
+
+# Artificial Intelligence
+
+Feature: ARTIFICIAL_INTELLIGENCE
+Description: Provides classes to create persistent artificial intelligence.
+Section: Articial Intelligence
+Requires:
+Name: WitchAI module
+See Also: ???
+
+Feature: GENETIC_ALGORITHMS
+Description: Provides a way to use genetic algorithms within articial intelligence.
+Section:
+Requires: ARTIFICIAl_INTELLIGENCE
+Name:
+See Also: ???
+
+# Script
+
+Feature: SCRIPT
+Description: Provides classes to support Python/Lua scripting languages and enabling WitchScript language.
+Section: Script
+Requires:
+Name: WitchScript module
+See Also: ???
+
+Feature: PYTHON_SUPPORT
+Description: Provides support for the Python script language.
+Section: Script
+Requires: SCRIPT
+Name: PythonScriptEngine
+See Also: ???
+
+Feature: LUA_SUPPORT
+Description: Provides support for Lua script language.
+Section: Script
+Requires: SCRIPT
+Name: LuaScriptEngine
+See Also: ???
+
+Feature: WITCHSCRIPT
+Description: Provides a specific script language.
+Section: Script
+Requires: SCRIPT
+Name: WitchScriptEngine
+See Also: ???
+
+Feature: SCRIPTABLE_SHADERS
+Description: Provides a way to use script to dynamically edit shaders.
+Section: Script
+Requires: SCRIPT
+Name: Scriptable Shaders
+See Also: ???
+
+Feature: SCRIPTABLE_ENVIRONMENT
+Description: Provides a way to use script to dynamically edit the environment.
+Section: Script
+Requires: SCRIPT
+Name: Scriptable Environment
+See Also: ???
+
+Feature: SCRIPTABLE_AI
+Description: Provides a way to use script to dinamically edit the artificial intelligence behaviors.
+Section: Script
+Requires: SCRIPT ARTIFICIAl_INTELLIGENCE
+Name: Scriptabla AI
+See Also: ???
