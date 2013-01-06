@@ -16,7 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <WitchCore/String.hpp>
 #include <WitchCore/Exception.hpp>
 
 namespace WitchEngine

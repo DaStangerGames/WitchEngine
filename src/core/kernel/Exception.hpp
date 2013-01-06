@@ -20,16 +20,14 @@
 #define __WITCHENGINE_CORE_EXCEPTION_HPP__
 
 #include <WitchCore/WitchGlobal.hpp>
+#include <WitchCore/String.hpp>
 #
 #include <exception>
 
 namespace WitchEngine
 {
 	namespace Core
-	{
-		// Forward declaration of needed classes.
-		class String;
-		
+	{		
 		/**
 		 * \class IWitchException
 		 * \author Alexandre Valentin Jamet

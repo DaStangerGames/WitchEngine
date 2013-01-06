@@ -17,11 +17,10 @@
 */
 
 #include <cstdlib>
+#
 #include <WitchCore/TrackerMemoryAllocator.hpp>
-
-// These includes are not needed in the header :
-#include <WitchCore/String.hpp>
 #include <WitchCore/Exception.hpp>
+#include <WitchCore/File.hpp>
 
 namespace WitchEngine
 {
@@ -32,6 +31,7 @@ namespace WitchEngine
 			_maxAllocatedMemory(0),
 			_blocks()
 		{
+			_file = new File("Engine/memory.log", ReadOnly);
 		}
 		
 		TrackerMemoryAllocator::~TrackerMemoryAllocator()
@@ -40,6 +40,10 @@ namespace WitchEngine
 			{
 				reportLeaks();
 			}
+			
+			_file->close();
+			
+			delete _file;
 		}
 		
 		void* TrackerMemoryAllocator::allocate(std::size_t size)

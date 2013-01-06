@@ -22,15 +22,14 @@
 #include <ctime>
 #
 #include <WitchCore/WitchGlobal.hpp>
-#
 #include <WitchCore/WitchEnums.hpp>
+#include <WitchCore/String.hpp>
 
 namespace WitchEngine
 {
 	namespace Core
 	{
 		// Forward declaration of needed classes.
-		class String;
 		class FileImpl; 	// Special forward declaration, private implementation.
 		
 		/**
@@ -89,9 +88,36 @@ namespace WitchEngine
 				FileImpl *_impl;
 				OpenMode _mode;
 		};
-		
+
+		WITCHENGINE_CORE_EXPORT File& operator<< (signed short i);
+		WITCHENGINE_CORE_EXPORT File& operator<< (float f);
 		WITCHENGINE_CORE_EXPORT File& operator<< (File &stream, const String &text);
-		WITCHENGINE_CORE_EXPORT File& operator>> (File &stream, String &text);
+		WITCHENGINE_CORE_EXPORT File& operator<< (char c);
+		WITCHENGINE_CORE_EXPORT File& operator<< (unsigned short i);
+		WITCHENGINE_CORE_EXPORT File& operator<< (signed int i);
+		WITCHENGINE_CORE_EXPORT File& operator<< (unsigned int i);
+		WITCHENGINE_CORE_EXPORT File& operator<< (signed long i);
+		WITCHENGINE_CORE_EXPORT File& operator<< (unsigned long i);
+		WITCHENGINE_CORE_EXPORT File& operator<< (int64 i);
+		WITCHENGINE_CORE_EXPORT File& operator<< (uint64 i);
+		WITCHENGINE_CORE_EXPORT File& operator<< (double f);
+		WITCHENGINE_CORE_EXPORT File& operator<< (const char *string);
+		WITCHENGINE_CORE_EXPORT File& operator<< (const void *ptr);
+		
+		WITCHENGINE_CORE_EXPORT File& operator>> (signed short i);
+		WITCHENGINE_CORE_EXPORT File& operator>> (float f);
+		WITCHENGINE_CORE_EXPORT File& operator>> (File &stream, const String &text);
+		WITCHENGINE_CORE_EXPORT File& operator>> (char c);
+		WITCHENGINE_CORE_EXPORT File& operator>> (unsigned short i);
+		WITCHENGINE_CORE_EXPORT File& operator>> (signed int i);
+		WITCHENGINE_CORE_EXPORT File& operator>> (unsigned int i);
+		WITCHENGINE_CORE_EXPORT File& operator>> (signed long i);
+		WITCHENGINE_CORE_EXPORT File& operator>> (unsigned long i);
+		WITCHENGINE_CORE_EXPORT File& operator>> (int64 i);
+		WITCHENGINE_CORE_EXPORT File& operator>> (uint64 i);
+		WITCHENGINE_CORE_EXPORT File& operator>> (double f);
+		WITCHENGINE_CORE_EXPORT File& operator>> (const char *string);
+		WITCHENGINE_CORE_EXPORT File& operator>> (const void *ptr);
 	}
 }
 

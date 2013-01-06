@@ -16,7 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <WitchCore/String.hpp>
 #include <WitchCore/File.hpp>
 
 #if WITCHENGINE_PLATFORM == WITCHENGINE_PLATFORM_WIN32 || WITCHENGINE_PLATFORM == WITCHENGINE_PLATFORM_WIN64
@@ -257,7 +256,7 @@ namespace WitchEngine
 			return FileImpl::rename(sourcePath, targetPath);
 		}
 		
-		// Related operators.
+		// Related stream operators.
 		File& operator<< (File &stream, const String &text)
 		{
 			return stream;

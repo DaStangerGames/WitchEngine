@@ -28,12 +28,13 @@ set(CMAKE_CXX_FLAGS_DEBUG "-g")
 
 add_definitions(-DWITCHENGINE_MAKEDLL -DWITCHENGINE_BUILD_CORE_LIB)
 
-include_directories(../../../../include)
+include_directories(../../../../include ../../../../src/3rdparty/freetype/include)
 
 # Getting files which we want to compile.
 file(
 	GLOB
 	source_files
+	../../../../src/3rdparty/libpng/*
 	../../../../src/core/global/*
 	../../../../src/core/io/*
 	../../../../src/core/io/Win32/*
@@ -41,9 +42,16 @@ file(
 	../../../../src/core/math/*
 )
 
+file(
+	GLOB_RECURSE
+	freetype_files
+	../../../../src/3rdparty/freetype/*
+)
+
 # Declaring the library.
 add_library(
 	WitchCore
 	SHARED
 	${source_files}
+	${freetype_files}
 )

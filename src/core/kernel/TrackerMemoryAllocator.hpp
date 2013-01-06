@@ -24,7 +24,9 @@
 namespace WitchEngine
 {
 	namespace Core
-	{
+	{	
+		class File;
+		
 		class WITCHENGINE_CORE_EXPORT TrackerMemoryAllocator : public Singleton<TrackerMemoryAllocator>
 		{
 			friend class Singleton<TrackerMemoryAllocator>;
@@ -79,6 +81,7 @@ namespace WitchEngine
 				uint32 _currentlyUsedMemory;
 				uint32 _maxAllocatedMemory;
 				MemoryBlockMap _blocks;
+				File *_file;
 		};
 	}
 }

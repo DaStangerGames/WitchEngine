@@ -28,12 +28,14 @@
 #define WITCH_VERSION_MAJOR	0x01		/*!< The major number of the version. */
 #define WITCH_VERSION_MINOR	0x00		/*!< The minor number of the version. */
 #define WITCH_VERSION_PATCH	0x00		/*!< The patch number of the version. */
+#define WITCH_VERSION_NAME	""			/*!< The name of the current version. */
 
 // Can be used like #if (WITCH_VERSION >= WITCH_VERSION_CHECK(1, 0, 0)).
 #define WITCH_VERSION_CHECK(major, minor, patch)	((major<<16)|(minor<<8)|(patch))
 
 #ifndef WITCHENGINE_NO_STL
 #	include <array>
+#	include <tuple>
 #	include <list>
 #	include <vector>
 #	include <map>
@@ -49,6 +51,7 @@ namespace WitchEngine
 	{
 		// Decalaring type aliases to STL containers.
 		template <typename Type, std::size_t Size> using Array = std::array<Type, Size>;
+		template <typename... Types> using Tuple = std::tuple<Type...>;
 		template <typename Type> using List = std::list<Type>;
 		template <typename Type> using Vector = std::vector<Type>;
 		template <typename Key, typename Type> using Map = std::map<Key, Type>;

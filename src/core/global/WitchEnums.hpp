@@ -143,10 +143,10 @@ namespace WitchEngine
 		
 		enum ShaderType
 		{
-			VertexShader,
-			FragmentShader,
-			GeometryShader,
-			ComputeShader
+			VertexShader,		/*!< */
+			FragmentShader,		/*!< */ 
+			GeometryShader,		/*!< */
+			ComputeShader		/*!< */
 		};
 		
 		enum GraphicalDriver
