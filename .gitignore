@@ -4,6 +4,9 @@ Makefile
 cmake_install.cmake
 install_manifest.txt
 
+doc/html
+doc/latex
+
 # Binary files as libraries.
 *.dll
 *.a
