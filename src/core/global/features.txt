@@ -1,12 +1,5 @@
 # Kernel
 
-Feature: CXX0X_SUPPORT
-Description: Implements replacements functionnality to make the code valid under a compiler that doesn't support C++0x standard.
-Section: Kernel
-Requires:
-Name:
-See Also: ???
-
 Feature: DYNAMIC_PROPOERTIES
 Description: Define dynamic properties. 
 Section: Kernel
@@ -124,6 +117,13 @@ Description: Provides a way to write into XML files.
 Section: Kernel
 Requires:
 Name: XMLWriter
+See Also: ???
+
+Feature: CONTROL_DEVICES
+Description: Provides a way to read from control devices.
+Section: Kernel
+Requires:
+Name: ControlDevice
 See Also: ???
 
 # Mathematics

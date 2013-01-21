@@ -1,22 +1,42 @@
 /*
  * The file is part of WitchEngine.
  * Copyright (C) 2012 The Team Entertainment
+ * Contact: http://www.theteamentertainment.com/license
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * Commercial License Usage
+ * Licensees holding valid WitchEngine licenses may use this file in
+ * accordance with the commercial license agreement provided with the
+ * Software or, alternatively, in accordance with the terms contained in
+ * a written agreement between you and The Team Entertainment. For licensing terms and
+ * conditions see http://www.theteamentertainment.com/licensing. For further information
+ * use the contact from at http://www.theteamentertainment.com/contact-us
+ *
+ * GNU General Public License Usage
+ * Alternatively, this file may be used under the terms of the GNU
+ * General Public License version 3.0 as published be the Free Software
+ * Foundation and appearing in the file COPYING included in the
+ * packaging of the file. Please review the following information to
+ * ensure the GNU General Public License version 3.0 requirements will be
+ * met: http://www.gnu.org/copyleft/gpl.html
+ *
+ * GNU Lesser General Public License Usage
+ * Alternatively, this file may be used under the terms of the GNU Lesser
+ * General Public License version 3.0 as published by the Free Software
+ * Foundation and appearing in the file COPYING.LESSER includd in the
+ * packaging of this file. Please review the following information to
+ * ensure the GNU Lesser General Public Lecense version 3.0 requirements
+ * will be met: http://www.gnu.org/copyleft/lesser.html
+ *
 */
 
 #include "WitchGlobal.hpp"
+
+#if WITCHENGINE_PLATFORM == WITCHENGINE_PLATFORM_WIN32 || WITCHENGINE_PLATFORM_WIN64
+#	include <Windows.h>
+#	include <WindowsX.h>
+#endif
+
+#include <cstdlib>
 
 /*!
 	\mainpage WitchEngine 1.0
@@ -73,11 +93,160 @@
 		\subsection gnu_lgpl_license The GNU LGPL License v3
 		
 		\subsection commercial_license The Team Entertainment Commercial License
+		
+	\section modules_section Modules
+	
+		<b>WitchEngine</b> is designed as a framework (an association of multiple library).
 */
 
 namespace WitchEngine
 {
 	namespace Core
 	{
+		const char* WitchVersion()
+		{
+			return WITCH_VERSION_STR;
+		}
+		
+		bool WitchSharedBuild()
+		{
+#ifdef WITCHENGINE_SHARED
+			return true;
+#else
+			return false;
+#endif
+		}
+		
+#if WITCHENGINE_PLATFORM == WITCHENGINE_PLATFORM_WIN32 || WITCHENGINE_PLATFORM == WITCHENGINE_PLATFORM_WIN64
+		WitchSystemInfo::WinVersion WitchSystemInfo::windowsVersion()
+		{
+#ifndef VER_PLATFORM_WIN32s
+#define VER_PLATFORM_WIN32s            0
+#endif
+#ifndef VER_PLATFORM_WIN32_WINDOWS
+#define VER_PLATFORM_WIN32_WINDOWS  1
+#endif
+#ifndef VER_PLATFORM_WIN32_NT
+#define VER_PLATFORM_WIN32_NT            2
+#endif
+#ifndef VER_PLATFORM_WIN32_CE
+#define VER_PLATFORM_WIN32_CE            3
+#endif
+
+			static WitchSystemInfo::WinVersion winver;
+			
+			if(winver)
+				return winver;
+			winver = WitchSystemInfo::WV_NT;
+			
+			OSVERSIONINFO osver;
+			osver.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+			
+			GetVersionEx(&osver);
+			
+			if(osver.dwMajorVersion < 5)
+			{
+				winver = WitchSystemInfo::WV_NT;
+			}
+			else if(osver.dwMajorVersion == 5 && osver.dwMinorVersion == 0)
+			{
+				winver = WitchSystemInfo::WV_2000;
+			}
+			else if(osver.dwMajorVersion == 5 && osver.dwMinorVersion == 1)
+			{
+				winver = WitchSystemInfo::WV_XP;
+			}
+			else if(osver.dwMajorVersion == 5 && osver.dwMinorVersion == 2)
+			{
+				winver = WitchSystemInfo::WV_2003;
+			}
+			else if(osver.dwMajorVersion == 6 && osver.dwMinorVersion == 0)
+			{
+				winver = WitchSystemInfo::WV_VISTA;
+			}
+			else if(osver.dwMajorVersion == 6 && osver.dwMinorVersion == 1)
+			{
+				winver = WitchSystemInfo::WV_WINDOWS7;
+			}
+			else if(osver.dwMajorVersion == 6 && osver.dwMinorVersion == 2)
+			{
+				winver = WitchSystemInfo::WV_WINDOWS8;
+			}
+			else
+			{
+				winver = WV_NT_based;
+			}
+			
+			return winver;
+		}
+		
+		const WitchSystemInfo::WinVersion WitchSystemInfo::WindowsVersion = WitchSystemInfo::windowsVersion();
+#endif // WITCHENGINE_PLATFORM == WITCHENGINE_PLATFORM_WIN32 || WITCHENGINE_PLATFORM == WITCHENGINE_PLATFORM_WIN64
+
+#if WITCHENGINE_PLATFORM == WITCHENGINE_PLATFORM_MACOS
+		WitchSystemInfo::MacVersion WitchSystemInfo::macintoshVersion()
+		{
+		}
+		
+		const WitchSystemInfo::MacVersion WitchSystemInfo::MacintoshVersion = WitchSystemInfo::macintoshVersion();
+#endif // WITCHENGINE_PLATFORM == WITCHENGINE_PLATFORM_MACOS
+
+#if WITCHENGINE_PLATFORM == WITCHENGINE_PLATFORM_BLACKBERRY
+#endif // WITCHENGINE_PLATFORM == WITCHENGINE_PLATFORM_BLACKBERRY
+
+#if WITCHENGINE_PLATFORM == WITCHENGINE_PLATFORM_ANDROID
+#endif // WITCHENGINE_PLATFORM == WITCHENGINE_PLATFORM_ANDROID
+
+		WitchSystemInfo::ProcessorArchitecture WitchSystemInfo::architecture()
+		{
+			static WitchSystemInfo::ProcessorArchitecture arch;
+			
+			if(arch)
+				return arch;
+				
+#if WITCHENGINE_PLATFORM == WITCHENGINE_PLATFORM_WIN32 || WITCHENGINE_PLATFORM == WITCHENGINE_PLATFORM_WIN64
+			SYSTEM_INFO sysinfo;
+			
+			GetNativeSystemInfo(&sysinfo);
+
+			if(sysinfo.wProcessorArchitecture == 9)
+			{
+				arch = WitchSystemInfo::PA_AMD64;
+			}
+			else if(sysinfo.wProcessorArchitecture == 6)
+			{
+				arch = WitchSystemInfo::PA_IA64;
+			}
+			else if(sysinfo.wProcessorArchitecture == 0)
+			{
+				arch = WitchSystemInfo::PA_INTEL;
+			}
+			else
+			{
+				arch = WitchSystemInfo::PA_UNKNOWN;
+			}
+#endif
+
+			return arch;
+		}
+		
+		const WitchSystemInfo::ProcessorArchitecture WitchSystemInfo::Architecture = WitchSystemInfo::architecture();
+		
+		char* getenv(const char *varName)
+		{
+#if defined(_MSC_VER) && _MSC_VER >= 1400
+#else
+			return ::getenv(varName);
+#endif
+		}
+		
+		bool putenv(const char *varName, const char *value)
+		{
+#if defined(_MSC_VER) && _MSC_VER >= 1400
+			return _putenv_s(varName, value) == 0;
+#else
+
+#endif
+		}
 	}
 }

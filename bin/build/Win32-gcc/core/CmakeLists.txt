@@ -26,7 +26,7 @@ set(CMAKE_CXX_FLAGS "-std=c++0x -mtune=core2 -msse4.2 -mfpmath=sse -masm=intel")
 set(CMAKE_CXX_FLAGS_RELEASE "-O2 -s")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 
-add_definitions(-DWITCHENGINE_MAKEDLL -DWITCHENGINE_BUILD_CORE_LIB)
+add_definitions(-DWITCHENGINE_MAKEDLL -DWITCHENGINE_BUILD_CORE_LIB -DWITCH_EDITION=0x7F)
 
 include_directories(../../../../include ../../../../src/3rdparty/freetype/include)
 
@@ -34,11 +34,11 @@ include_directories(../../../../include ../../../../src/3rdparty/freetype/includ
 file(
 	GLOB
 	source_files
-	../../../../src/3rdparty/libpng/*
 	../../../../src/core/global/*
 	../../../../src/core/io/*
 	../../../../src/core/io/Win32/*
 	../../../../src/core/kernel/*
+	../../../../src/core/kernel/Win32/*
 	../../../../src/core/math/*
 )
 

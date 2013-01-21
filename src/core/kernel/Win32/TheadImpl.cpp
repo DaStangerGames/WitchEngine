@@ -29,16 +29,48 @@
  *
 */
 
-#include "File.hpp"
-
-#if WITCHENGINE_PLATFORM == WITCHENGINE_PLATFORM_WIN32 || WITCHENGINE_PLATFORM == WITCHENGINE_PLATFORM_WIN64
-#	include "Win32/FileImpl.hpp"
-#else
-#endif
+#include "ThreadImpl.hpp"
+#
+#include "../Functor.hpp"
+#
+#include <process.h>
 
 namespace WitchEngine
 {
 	namespace Core
 	{
+		ThreadImpl::ThreadImpl(Functor *functor)
+		{
+			_handle = reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, &ThreadImpl::threadProc, functor, 0, nullptr));
+			if(!_handle)
+			{
+				// TODO: Throwing an exception.
+			}
+		}
+		
+		void ThreadImpl::detach()
+		{
+			CloseHandle(_handle);
+		}
+		
+		void ThreadImpl::join()
+		{
+			WaitForSingleObject(_handle, INFINITE);
+			CloseHandle(_handle);
+		}
+		
+		unsigned int __stdcall ThreadImpl::threadProc(void *userData)
+		{
+			Functor *func = static_cast<Functor *>(userData);
+			func->run();
+			delete func;
+			
+			return 0;
+		}
+		
+		void ThreadImpl::sleep(uint32 time)
+		{
+			::Sleep(time);
+		}
 	}
 }

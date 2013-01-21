@@ -29,51 +29,96 @@
  *
 */
 
-#ifndef __WITCHENGINE_CORE_MUTEX_HPP__
-#define __WITCHENGINE_CORE_MUTEX_HPP__
-
-#include <WitchCore/WitchGlobal.hpp>
-
-WITCH_BEGIN_HEADER
-
-WITCH_MODULE(Core)
+#ifndef __WITCHENGINE_CORE_FUNCTOR_HPP__
+#define __WITCHENGINE_CORE_FUNCTOR_HPP__
 
 namespace WitchEngine
 {
 	namespace Core
 	{
-		// Forward declaration.
-		class MutexImpl;
-		
-		/**
-		 * \class Mutex
-		 * \author Alexandre Valentin Jamet
-		 * \date 13 Junuary 2013
-		 * \brief Mutex class is a simple implementation of mutual exclusion.
-		 * It provides a way forbid from other thread to datas.
-		**/
-		class WITCHENGINE_CORE_EXPORT Mutex
+		struct Functor
 		{
-			public:
-				Mutex();
-				~Mutex();
-				
-				// Disabling copy.
-				Mutex(const Mutex &) = delete;
-				Mutex(Mutex &&) = delete;
-				void operator= (const Mutex &) = delete;
-				void operator= (Mutex &&) = delete;
-				
-				void lock();
-				bool tryLock();
-				void unlock();
-				
+			virtual ~Functor() { }
+			
+			virtual void run() = 0;
+		};
+		
+		template <typename FunctionType>
+		struct FunctorWithoutArgs : public Functor
+		{
+			FunctorWithoutArgs(FunctionType func) :
+				_func(func)
+			{
+			}
+			
+			void run()
+			{
+				_func();
+			}
+			
 			private:
-				MutexImpl *_impl;
+				FunctionType _func;
+		};
+		
+		template <typename FunctionType, typename... Args>
+		struct FunctorWithArgs : public Functor
+		{
+			FunctorWithArgs(FunctionType func, Args&... args) :
+				_func(func),
+				_args(args...)
+			{
+			}
+			
+			void run()
+			{
+				// TODO : complete this part of the code with a method to unpack tuple containers.
+			}
+			
+			private:
+				FunctionType _func;
+				Tuple<Args...> _args;
+		};
+		
+		template <typename Class>
+		struct MemberWithoutArgs : public Functor
+		{
+			MemberWithoutArgs(void (Class::*func)(), Class *object) :
+				_func(func),
+				_object(object)
+			{
+			}
+			
+			void run()
+			{
+				(_object->*_func)();
+			}
+			
+			private:
+				void (Class::*_func)();
+				Class *_object;
+		};
+		
+		template <typename Class, typename... Args>
+		struct MemberWithArgs : public Functor
+		{
+			MemberWithArgs(void (Class::*func)(Args...), Class *object, Args&... args) :
+				_func(func),
+				_object(object),
+				_args(args...)
+			{
+			}
+			
+			void run()
+			{
+				// TODO : complete this part of the code with a method to unpack tuple containers.
+			}
+			
+			private:
+				void (Class::*_func)(Args...);
+				Tuple<Args...> _args;
+				Class *_object;
 		};
 	}
 }
 
-WITCH_END_HEADER
-
-#endif // __WITCHENGINE_CORE_MUTEX_HPP__
+#endif // __WITCHENGINE_CORE_FUNCTOR_HPP__

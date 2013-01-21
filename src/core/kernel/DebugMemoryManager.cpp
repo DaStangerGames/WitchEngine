@@ -29,16 +29,71 @@
  *
 */
 
-#include "File.hpp"
-
-#if WITCHENGINE_PLATFORM == WITCHENGINE_PLATFORM_WIN32 || WITCHENGINE_PLATFORM == WITCHENGINE_PLATFORM_WIN64
-#	include "Win32/FileImpl.hpp"
-#else
-#endif
+#include "DebugMemoryManager.hpp"
 
 namespace WitchEngine
 {
 	namespace Core
 	{
+		DebugMemoryManager::DebugMemoryManager() :
+			_blocks()
+		{
+		}
+		
+		DebugMemoryManager::~DebugMemoryManager()
+		{
+			if(!_blocks.empty())
+			{
+				reportLeaks();
+			}
+			else
+			{
+			}
+		}
+		
+		void* DebugMemoryManager::allocate(std::size_t size, uint32 line, const char *file, bool array)
+		{
+			void *pointer = ::std::malloc(size);
+			
+			MemoryBlock NewBlock(size, line, file, array);
+			
+			_blocks[pointer] = NewBlock;
+			
+			return pointer;
+		}
+		
+		void DebugMemoryManager::free(void *pointer, bool array)
+		{
+			MemoryBlockMap::iterator it = _blocks.find(pointer);
+			
+			if(it == _blocks.end())
+			{
+				::std::free(pointer);
+				return;
+			}
+			
+			if(it->second.Array != array)
+			{
+				// TODO: Throwing an excpetion.
+			}
+			
+			_blocks.erase(it);
+			
+			::std::free(pointer);
+		}
+		
+		void DebugMemoryManager::reportLeaks()
+		{
+			// Leaks details.
+			std::size_t totalSize = 0;
+			for(MemoryBlockMap::iterator it = _blocks.begin();
+				it != _blocks.end();
+				it++)
+			{
+				totalSize += it->second.Size;
+				
+				::std::free(it->first);
+			}
+		}
 	}
 }

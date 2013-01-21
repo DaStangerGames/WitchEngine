@@ -29,16 +29,29 @@
  *
 */
 
-#include "File.hpp"
+#ifndef __WITCHENGINE_CORE_MUTEXIMPL_HPP__
+#define __WITCHENGINE_CORE_MUTEXIMPL_HPP__
 
-#if WITCHENGINE_PLATFORM == WITCHENGINE_PLATFORM_WIN32 || WITCHENGINE_PLATFORM == WITCHENGINE_PLATFORM_WIN64
-#	include "Win32/FileImpl.hpp"
-#else
-#endif
+#include <Windows.h>
 
 namespace WitchEngine
 {
 	namespace Core
 	{
+		class MutexImpl
+		{
+			public:
+				MutexImpl();
+				~MutexImpl();
+				
+				void lock();
+				bool tryLock();
+				void unlock();
+				
+			private:
+				CRITICAL_SECTION _nativeMutex;
+		};
 	}
 }
+
+#endif // __WITCHENGINE_CORE_MUTEXIMPL_HPP__

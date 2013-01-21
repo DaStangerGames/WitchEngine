@@ -29,16 +29,65 @@
  *
 */
 
-#include "File.hpp"
+#ifndef __WITCHENGINE_CORE_DEBUGMEMORYMANAGER_HPP__
+#define __WITCHENGINE_CORE_DEBUGMEMORYMANAGER_HPP__
 
-#if WITCHENGINE_PLATFORM == WITCHENGINE_PLATFORM_WIN32 || WITCHENGINE_PLATFORM == WITCHENGINE_PLATFORM_WIN64
-#	include "Win32/FileImpl.hpp"
-#else
-#endif
+#include <WitchCore/WitchGlobal.hpp>
+
+WITCH_BEGIN_HEADER
+
+WITCH_MODULE(Core)
 
 namespace WitchEngine
 {
 	namespace Core
 	{
+		class WITCHENGINE_CORE_EXPORT DebugMemoryManager : public Singleton<DebugMemoryManager>
+		{
+			friend class Singleton<DebugMemoryManager>;
+			
+			struct MemoryBlock
+			{
+				std::size_t Size;
+				uint32 Line;
+				const char *File;
+				bool Array;
+				
+				MemoryBlock() :
+					Size(0),
+					Line(0),
+					File(nullptr),
+					Array(false)
+				{
+				}
+				
+				MemoryBlock(std::size_t size, uint32 line, const char *file, bool array) :
+					Size(size),
+					Line(line),
+					File(file),
+					Array(array)
+				{
+				}
+			};
+			
+			typedef Map<void *, MemoryBlock> MemoryBlockMap;
+			
+			private:
+				DebugMemoryManager();
+				~DebugMemoryManager();
+				
+			public:
+				void* allocate(std::size_t size, uint32 line, const char *file, bool array);
+				void free(void *pointer, bool array);
+				
+				void reportLeaks();
+				
+			private:
+				MemoryBlockMap _blocks;
+		};
 	}
 }
+
+WITCH_END_HEADER
+
+#endif // __WITCHENGINE_CORE_DEBUGMEMORYMANAGER_HPP__

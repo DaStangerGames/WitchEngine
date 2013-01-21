@@ -29,16 +29,36 @@
  *
 */
 
-#include "File.hpp"
+#ifndef __WITCHENGINE_CORE_THREADIMPL_HPP__
+#define __WITCHENGINE_CORE_THREADIMPL_HPP__
 
-#if WITCHENGINE_PLATFORM == WITCHENGINE_PLATFORM_WIN32 || WITCHENGINE_PLATFORM == WITCHENGINE_PLATFORM_WIN64
-#	include "Win32/FileImpl.hpp"
-#else
-#endif
+#include <WitchCore/WitchGlobal.hpp>
+#
+#include <Windows.h>
 
 namespace WitchEngine
 {
 	namespace Core
 	{
+		// Forward declaration.
+		struct Functor;
+		
+		class ThreadImpl
+		{
+			public:
+				ThreadImpl(Functor *threadFunc);
+				
+				void detach();
+				void join();
+				
+				void sleep(uint32 time);
+				
+			private:
+				static unsigned int __stdcall threadProc(void *userData);
+				
+				HANDLE _handle;
+		};
 	}
 }
+
+#endif // __WITCHENGINE_CORE_THREADIMPL_HPP__

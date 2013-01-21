@@ -1,124 +1,134 @@
 /*
  * The file is part of WitchEngine.
  * Copyright (C) 2012 The Team Entertainment
+ * Contact: http://www.theteamentertainment.com/license
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * Commercial License Usage
+ * Licensees holding valid WitchEngine licenses may use this file in
+ * accordance with the commercial license agreement provided with the
+ * Software or, alternatively, in accordance with the terms contained in
+ * a written agreement between you and The Team Entertainment. For licensing terms and
+ * conditions see http://www.theteamentertainment.com/licensing. For further information
+ * use the contact from at http://www.theteamentertainment.com/contact-us
+ *
+ * GNU General Public License Usage
+ * Alternatively, this file may be used under the terms of the GNU
+ * General Public License version 3.0 as published be the Free Software
+ * Foundation and appearing in the file COPYING included in the
+ * packaging of the file. Please review the following information to
+ * ensure the GNU General Public License version 3.0 requirements will be
+ * met: http://www.gnu.org/copyleft/gpl.html
+ *
+ * GNU Lesser General Public License Usage
+ * Alternatively, this file may be used under the terms of the GNU Lesser
+ * General Public License version 3.0 as published by the Free Software
+ * Foundation and appearing in the file COPYING.LESSER includd in the
+ * packaging of this file. Please review the following information to
+ * ensure the GNU Lesser General Public Lecense version 3.0 requirements
+ * will be met: http://www.gnu.org/copyleft/lesser.html
+ *
 */
 
 #ifndef __WITCHENGINE_CORE_FILE_HPP__
 #define __WITCHENGINE_CORE_FILE_HPP__
 
-#include <ctime>
-#
 #include <WitchCore/WitchGlobal.hpp>
-#include <WitchCore/WitchEnums.hpp>
-#include <WitchCore/String.hpp>
+#
+#
+#include "../kernel/String.hpp"
+#include "../kernel/Mutex.hpp"
+#
+#include <ctime>
+
+WITCH_BEGIN_HEADER
+
+WITCH_MODULE(Core)
 
 namespace WitchEngine
 {
 	namespace Core
 	{
-		// Forward declaration of needed classes.
-		class FileImpl; 	// Special forward declaration, private implementation.
+		// Forward declaration.
+		class FileImpl;
 		
-		/**
-		 * \class File
-		 * \author Alexandre Valentin Jamet
-		 * \date 29 December 2012
-		 * \brief This class provides a way to handle file.
-		**/
 		class WITCHENGINE_CORE_EXPORT File
 		{
 			public:
 			
+				enum OpenModeFlags
+				{
+					ReadOnly = 0x01,
+					WriteOnly = 0x02,
+					ReadWrite = ReadOnly | WriteOnly,
+					Append = 0x04,
+					Truncate = 0x08,
+					Text = 0x10
+				};
+				WITCHENGINE_DECLARE_FLAGS(OpenMode, OpenModeFlags)
+				
 				File();
-				File(const String &filename);
-				File(const String &filename, OpenMode mode);
+				File(const String &filePath);
+				File(const String &filePath, OpenMode openMode);
 				~File();
 				
-				bool atEnd() const;
+				bool copy(const String &newFilePath);
 				void close();
-				bool isOpen() const;
-				bool isReadable() const;
-				bool isTextModeEnabled() const;
-				bool isWritable() const;
-				bool copy(const String &newName);
+				bool remove();
+				
+				bool endOfFile() const;
+				
 				bool exists() const;
-				String filename() const;
-				bool flush();
-				int handle() const;
-				bool open(OpenMode mode);
-				bool open(const String &filename, OpenMode mode);
-				OpenMode openMode() const;
-				bool setOpenMode(OpenMode mode);
-				uint64 peek(char *data, uint64 maxSize);
-				void setTextModeEnabled(bool enabled);
+				
+				void flush();
+				
+				std::time_t creationTime() const;
+				uint64 cursorPos() const;
+				String directory() const;
+				String fileName() const;
+				std::time_t lastAccessTime() const;
+				std::time_t lastWriteTime() const;
+				String path() const;
 				uint64 size() const;
-				uint64 read(char *data, uint64 maxSize);
+				
+				bool isOpen() const;
+				
+				bool open(OpenMode openMode);
+				
+				uint64 read(char* buffer, uint64 maxSize);
 				char* read(uint64 maxSize);
-				char* readAll();
+				
+				bool rename(const String &filePath);
+				
+				bool setPath(const String &path);
+				bool setOpenMode(OpenMode openMode);
+				
 				uint64 write(const char *data, uint64 maxSize);
 				uint64 write(const char *data);
 				
-				static String absolutePath(const String &filePath);
+				static String absolutePath(const String &path);
 				static bool copy(const String &sourcePath, const String &targetPath);
-				static bool remove(const String &filePath);
-				static bool exists(const String &filePath);
-				static std::time_t creationTime(const String &filePath);
-				static String directorty(const String &filePath);
-				static std::time_t lastAccessTime(const String &filePath);
-				static std::time_t lastWriteTime(const String &filePath);
-				static uint64 size(const String &filePath);
-				static bool isAbsolute(const String &filePath);
+				static bool remove(const String &path);
+				static bool exists(const String &path);
+				static std::time_t creationTime(const String &path);
+				static String directory(const String &path);
+				static std::time_t lastAccessTime(const String &path);
+				static std::time_t lastWriteTime(const String &path);
+				static uint64 size(const String &path);
+				static bool isAbsolute(const String &path);
+				static String normalizeOath(const String &path);
+				static String normalizeSeparators(const String &path);
 				static bool rename(const String &sourcePath, const String &targetPath);
 				
 			private:
-				String _filename;
+				Mutex _mutex;
+				
+				String _filePath;
 				FileImpl *_impl;
-				OpenMode _mode;
+				OpenMode _openMode;
 		};
-
-		WITCHENGINE_CORE_EXPORT File& operator<< (signed short i);
-		WITCHENGINE_CORE_EXPORT File& operator<< (float f);
-		WITCHENGINE_CORE_EXPORT File& operator<< (File &stream, const String &text);
-		WITCHENGINE_CORE_EXPORT File& operator<< (char c);
-		WITCHENGINE_CORE_EXPORT File& operator<< (unsigned short i);
-		WITCHENGINE_CORE_EXPORT File& operator<< (signed int i);
-		WITCHENGINE_CORE_EXPORT File& operator<< (unsigned int i);
-		WITCHENGINE_CORE_EXPORT File& operator<< (signed long i);
-		WITCHENGINE_CORE_EXPORT File& operator<< (unsigned long i);
-		WITCHENGINE_CORE_EXPORT File& operator<< (int64 i);
-		WITCHENGINE_CORE_EXPORT File& operator<< (uint64 i);
-		WITCHENGINE_CORE_EXPORT File& operator<< (double f);
-		WITCHENGINE_CORE_EXPORT File& operator<< (const char *string);
-		WITCHENGINE_CORE_EXPORT File& operator<< (const void *ptr);
-		
-		WITCHENGINE_CORE_EXPORT File& operator>> (signed short i);
-		WITCHENGINE_CORE_EXPORT File& operator>> (float f);
-		WITCHENGINE_CORE_EXPORT File& operator>> (File &stream, const String &text);
-		WITCHENGINE_CORE_EXPORT File& operator>> (char c);
-		WITCHENGINE_CORE_EXPORT File& operator>> (unsigned short i);
-		WITCHENGINE_CORE_EXPORT File& operator>> (signed int i);
-		WITCHENGINE_CORE_EXPORT File& operator>> (unsigned int i);
-		WITCHENGINE_CORE_EXPORT File& operator>> (signed long i);
-		WITCHENGINE_CORE_EXPORT File& operator>> (unsigned long i);
-		WITCHENGINE_CORE_EXPORT File& operator>> (int64 i);
-		WITCHENGINE_CORE_EXPORT File& operator>> (uint64 i);
-		WITCHENGINE_CORE_EXPORT File& operator>> (double f);
-		WITCHENGINE_CORE_EXPORT File& operator>> (const char *string);
-		WITCHENGINE_CORE_EXPORT File& operator>> (const void *ptr);
 	}
 }
+
+WITCH_END_HEADER
 
 #endif // __WITCHENGINE_CORE_FILE_HPP__

@@ -29,16 +29,35 @@
  *
 */
 
-#include "File.hpp"
-
-#if WITCHENGINE_PLATFORM == WITCHENGINE_PLATFORM_WIN32 || WITCHENGINE_PLATFORM == WITCHENGINE_PLATFORM_WIN64
-#	include "Win32/FileImpl.hpp"
-#else
-#endif
+#include "MutexImpl.hpp"
 
 namespace WitchEngine
 {
 	namespace Core
 	{
+		MutexImpl::MutexImpl()
+		{
+			InitializeCriticalSection(&_nativeMutex);
+		}
+		
+		MutexImpl::~MutexImpl()
+		{
+			DeleteCriticalSection(&_nativeMutex);
+		}
+		
+		void MutexImpl::lock()
+		{
+			EnterCriticalSection(&_nativeMutex);
+		}
+		
+		bool MutexImpl::tryLock()
+		{
+			return TryEnterCriticalSection(&_nativeMutex) != 0;
+		}
+		
+		void MutexImpl::unlock()
+		{
+			LeaveCriticalSection(&_nativeMutex);
+		}
 	}
 }

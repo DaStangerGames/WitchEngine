@@ -16,6 +16,6 @@ REM GNU General Public License for more details.
 REM You should have received a copy of the GNU General Public License
 REM along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-cmake -G "MinGW Makefiles"
+cmake -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE:STRING=Release
 
 mingw32-make

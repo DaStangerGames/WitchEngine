@@ -1,19 +1,32 @@
 /*
  * The file is part of WitchEngine.
  * Copyright (C) 2012 The Team Entertainment
+ * Contact: http://www.theteamentertainment.com/license
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * Commercial License Usage
+ * Licensees holding valid WitchEngine licenses may use this file in
+ * accordance with the commercial license agreement provided with the
+ * Software or, alternatively, in accordance with the terms contained in
+ * a written agreement between you and The Team Entertainment. For licensing terms and
+ * conditions see http://www.theteamentertainment.com/licensing. For further information
+ * use the contact from at http://www.theteamentertainment.com/contact-us
+ *
+ * GNU General Public License Usage
+ * Alternatively, this file may be used under the terms of the GNU
+ * General Public License version 3.0 as published be the Free Software
+ * Foundation and appearing in the file COPYING included in the
+ * packaging of the file. Please review the following information to
+ * ensure the GNU General Public License version 3.0 requirements will be
+ * met: http://www.gnu.org/copyleft/gpl.html
+ *
+ * GNU Lesser General Public License Usage
+ * Alternatively, this file may be used under the terms of the GNU Lesser
+ * General Public License version 3.0 as published by the Free Software
+ * Foundation and appearing in the file COPYING.LESSER includd in the
+ * packaging of this file. Please review the following information to
+ * ensure the GNU Lesser General Public Lecense version 3.0 requirements
+ * will be met: http://www.gnu.org/copyleft/lesser.html
+ *
 */
 
 #ifndef __WITCHENGINE_CORE_WITCHGLOBAL_HPP__
@@ -33,6 +46,7 @@
 // Can be used like #if (WITCH_VERSION >= WITCH_VERSION_CHECK(1, 0, 0)).
 #define WITCH_VERSION_CHECK(major, minor, patch)	((major<<16)|(minor<<8)|(patch))
 
+// Creating aliases to handle the standard template library if necessary.
 #ifndef WITCHENGINE_NO_STL
 #	include <array>
 #	include <tuple>
@@ -51,7 +65,7 @@ namespace WitchEngine
 	{
 		// Decalaring type aliases to STL containers.
 		template <typename Type, std::size_t Size> using Array = std::array<Type, Size>;
-		template <typename... Types> using Tuple = std::tuple<Type...>;
+		template <typename... Types> using Tuple = std::tuple<Types...>;
 		template <typename Type> using List = std::list<Type>;
 		template <typename Type> using Vector = std::vector<Type>;
 		template <typename Key, typename Type> using Map = std::map<Key, Type>;
@@ -63,8 +77,12 @@ namespace WitchEngine
 }
 #endif
 
-#ifdef WITCHENGINE_NO_CXX0X_SUPPORT
-#	include "CXX0XSupport.hpp"
+#if WITCHENGINE_PLATFORM == WITCHENGINE_PLATFORM_MACOS
+#	define WITCH_BEGIN_HEADER extern "C++" {
+#	define WITCH_END_HEADER }
+#else
+#	define WITCH_BEGIN_HEADER
+#	define WITCH_END_HEADER
 #endif
 
 // Defining constants to represents the operating system.
@@ -121,12 +139,14 @@ namespace WitchEngine
 
 // Creating shortcut to attributes.
 #	define FASTCALL __fastcall
+#	define FUNCTION
 #elif defined(__GNUC__)
 #	define WITCHENGINE_COMPILER WITCHENGINE_COMPILER_GNUC
 #	define WITCHENGINE_COMPILER_VERSION	__GNUC__
 
 // Creating shortcut to attributes.
 #	define FASTCALL __attribute__((fastcall))
+#	define FUNCTION
 #endif
 
 // Checking the operating system.
@@ -137,6 +157,42 @@ namespace WitchEngine
 #		define WITCHENGINE_PLATFORM WITCHENGINE_PLATFORM_WIN32
 #	endif
 #	define WITCHENGINE_PLATFORM_KIND	WITCHENGINE_PLATFORM_KIND_DOS
+	// Specials defines for Win32 API header.
+	
+#ifndef WIN32_LEAN_AND_MEAN
+#	define WIN32_LEAN_AND_MEAN
+#endif
+#ifndef NOMINMAX
+#	define NOMINMAX
+#endif
+
+// Checking the Windows version target.
+#ifdef WITCHENGINE_WINDOWS_XP
+#	define WITCHENGINE_WINDOWS_VERSION	0x0501
+#elif defined(WITCHENGINE_WINDOWS_VISTA)
+#	define WITCHENGINE_WINDOWS_VERSION	0x0600
+#elif defined(WITCHENGINE_WINDOWS_7)
+#	define WITCHENGINE_WINDOWS_VERSION	0x0601
+#elif defined(WITCHENGINE_WINDOWS_8)
+#	define WITCHENGINE_WINDOWS_VERSION	0x0608
+#else
+#	define WITCHENGINE_WINDOWS_VERSION	0x0600
+#endif
+
+#ifdef _WIN32_WINNT
+#	if _WIN32_WINNT < WITCHENGINE_WINDOWS_VERSION
+#		undef _WIN32_WINNT
+#		define _WIN32_WINNT WITCHENGINE_WINDOWS_VERSION
+#	endif
+#else
+#	define _WIN32_WINNT WITCHENGINE_WINDOWS_VERSION
+#endif
+
+// No DirectX10 / DirectX11 under Windows XP.
+#if WITCHENGINE_WINDOWS_VERSION == 0x0501
+#	define WITCHENGINE_NO_DIRECTX10_RENDERER
+#	define WITCHENGINE_NO_DIRECTX11_RENDERER
+#endif
 	// Settings up features for this platform.
 #	define WITCHENGINE_NO_OPENGLES_RENDERER
 #elif defined(__linux__)
@@ -164,6 +220,7 @@ namespace WitchEngine
 #	define WITCHENGINE_NO_DIRECTX11_RENDERER
 #	define WITCHENGINE_NO_OPENGL_RENDERER
 #	define WITCHENGINE_NO_ON_THE_FLY_RENDERER_LOADING
+#	define WITCHENGINE_NO_CONTROL_DEVICES	/* Dissabling external control devices under mobile platforms because there's no way to connect them. */
 #elif defined(__ANDROID__)
 #	define WITCHENGINE_PLATFORM WITCHENGINE_PLATFORM_ANDROID
 #	define WITCHENGINE_PLATFORM_KIND	WITCHENGINE_PLATFORM_KIND_POSIX
@@ -173,6 +230,7 @@ namespace WitchEngine
 #	define WITCHENGINE_NO_DIRECTX11_RENDERER
 #	define WITCHENGINE_NO_OPENGL_RENDERER
 #	define WITCHENGINE_NO_ON_THE_FLY_RENDERER_LOADING
+#	define WITCHENGINE_NO_CONTROL_DEVICES	/* Dissabling external control devices under mobile platforms because there's no way to connect them. */
 #endif
 
 // Checking the architecture.
@@ -269,6 +327,11 @@ namespace WitchEngine
 #		else
 #			define WITCHENGINE_AI_EXPORT		WITCHENGINE_IMPORT
 #		endif
+#		if defined(WITCHENGINE_BUILD_RAYTRACER_LIB)
+#			define WITCHENGINE_RAYTRACER_EXPORT	WITCHENGINE_EXPORT
+#		else
+#			define WITCHENGINE_RAYTRACER_EXPORT	WITCHENGINE_IMPORT
+#		endif
 #	elif defined(WITCHENGINE_DLL)
 #		define WITCHENGINE_CORE_EXPORT 			WITCHENGINE_IMPORT
 #		define WITCHENGINE_AUDIO_EXPORT			WITCHENGINE_IMPORT
@@ -276,6 +339,7 @@ namespace WitchEngine
 #		define WITCHENGINE_PHYSIC_EXPORT		WITCHENGINE_IMPORT
 #		define WITCHENGINE_NETWORK_EXPORT		WITCHENGINE_IMPORT
 #		define WITCHENGINE_AI_EXPORT			WITCHENGINE_IMPORT
+#		define WITCHENGINE_RAYTRACER_EXPORT		WITCHENGINE_IMPORT
 #	else
 #		undef WITCHENGINE_MAKEDLL
 #		undef WITCHENGINE_DLL
@@ -290,6 +354,7 @@ namespace WitchEngine
 #	define WITCHENGINE_PHYSIC_EXPORT		WITCHENGINE_IMPORT
 #	define WITCHENGINE_NETWORK_EXPORT		WITCHENGINE_IMPORT
 #	define WITCHENGINE_AI_EXPORT			WITCHENGINE_IMPORT
+#	define WUTCHENGINE_RAYTRACER_EXPORT		WITCHENGINE_IMPORT
 #endif
 
 #if !defined(WITCHENGINE_CORE_EXPORT)
@@ -300,6 +365,7 @@ namespace WitchEngine
 #		define WITCHENGINE_PHYSIC_EXPORT		WITCHENGINE_EXPORT
 #		define WITCHENGINE_NETWORK_EXPORT		WITCHENGINE_EXPORT
 #		define WITCHENGINE_AI_EXPORT			WITCHENGINE_EXPORT
+#		define WITCHENGINE_RAYTRACER_EXPORT		WITCHENGINE_EXPORT
 #	else
 #		define WITCHENGINE_CORE_EXPORT
 #		define WITCHENGINE_AUDIO_EXPORT
@@ -307,8 +373,76 @@ namespace WitchEngine
 #		define WITCHENGINE_PHYSIC_EXPORT
 #		define WITCHENGINE_NETWORK_EXPORT
 #		define WITCHENGINE_AI_EXPORT
+#		define WITCHENGINE_RAYTRACER_EXPORT
 #	endif
 #endif
+
+/*
+	This will gives the possibility to check which modules
+	the user can uses.
+*/
+#define WITCH_MODULE_CORE		0x0001
+#define WITCH_MODULE_AUDIO		0x0002
+#define WITCH_MODULE_SCRIPT		0x0004
+#define WITCH_MODULE_PHYSIC		0x0008
+#define WITCH_MODULE_NETWORK	0x0010
+#define WITCH_MODULE_AI			0x0020
+#define WITCH_MODULE_RAYTRACER	0x0040
+
+/* WithcEngine editions */
+#define WITCH_EDITION_DEVELOPPER	(WITCH_MODULE_CORE \
+									| WITCH_MODULE_AUDIO \
+									| WITCH_MODULE_SCRIPT \
+									| WITCH_MODULE_PHYSIC \
+									| WITCH_MODULE_NETWORK \
+									| WITCH_MODULE_AI \
+									| WITCH_MODULE_RAYTRACER)
+									
+#define WITCH_EDITION_GAME			(WITCH_MODULE_CORE \
+									| WITCH_MODULE_AUDIO \
+									| WITCH_MODULE_SCRIPT \
+									| WITCH_MODULE_PHYSIC \
+									| WITCH_MODULE_NETWORK \
+									| WITCH_MODULE_AI)
+									
+#define WITCH_EDITION_DESKTOPGAME	WITCH_EDITION_GAME
+
+#define WITCH_EDITION_MOBILEGAME	WITCH_EDITION_GAME
+
+/* Determine which modules can be used */
+#ifndef WITCH_EDITION
+#	error "WitchEngine not configured"
+#endif
+
+#define WITCH_LICENSED_MODULE(x) \
+	enum WitchValidLicenseFor##x##Module { Licensed##x = true };
+	
+#if (WITCH_EDITION & WITCH_MODULE_CORE)
+WITCH_LICENSED_MODULE(Core)
+#endif
+
+#if (WITCH_EDITION & WITCH_MODULE_AUDIO)
+WITCH_LICENSED_MODULE(Audio)
+#endif
+
+#if (WITCH_EDITION & WITCH_MODULE_SCRIPT)
+WITCH_LICENSED_MODULE(Script)
+#endif
+
+#if (WITCH_EDITION & WITCH_MODULE_PHYSIC)
+WITCH_LICENSED_MODULE(Physic)
+#endif
+
+#if (WITCH_EDITION & WITCH_MODULE_NETWORK)
+WITCH_LICENSED_MODULE(Network)
+#endif
+
+#if (WITCH_EDITION & WITCH_MODULE_AI)
+WITCH_LICENSED_MODULE(AI)
+#endif
+
+#define WITCH_MODULE(x) \
+	typedef WitchValidLicenseFor##x##Module Witch##x##Module;
 
 // Checking the endianness.
 #if WITCHENGINE_COMPILER == WITCHENGINE_COMPILER_GNUC
@@ -343,9 +477,13 @@ namespace WitchEngine
 		typedef int 				int32;		/*!< Defines an unsigned 32-bytes width integer. */
 	
 #if WITCHENGINE_COMPILER == WITCHENGINE_COMPILER_MSVC
+#  define WITCH_INT64(c) static_cast<long long>(c ## LL)     /* signed 64 bit constant */
+#  define WITCH_UINT64(c) static_cast<unsigned long long>(c ## ULL) /* unsigned 64 bit constant */
 		typedef unsigned __int64	uint64;		/*!< Defines a signed 32-bytes width integer. */
 		typedef __int64				int64;		/*!< Defines an unsigned 32-bytes width integer. */
 #else
+#  define WITCH_INT64(c) c ## i64    /* signed 64 bit constant */
+#  define WITCH_UINT64(c) c ## ui64   /* unsigned 64 bit constant */
 		typedef unsigned long long 	uint64;		/*!< Defines a signed 32-bytes width integer. */
 		typedef long long 			int64;		/*!< Defines an unsigned 32-bytes width integer. */
 #endif
@@ -387,7 +525,8 @@ namespace WitchEngine
 					WV_2003     = 0x0040,
 					WV_VISTA    = 0x0080,
 					WV_WINDOWS7 = 0x0090,
-					WV_NT_based = 0x00f0,
+					WV_WINDOWS8 = 0x00a0,
+					WV_NT_based = 0x00b0,
 
 					/* version numbers */
 					WV_4_0      = WV_NT,
@@ -396,6 +535,7 @@ namespace WitchEngine
 					WV_5_2      = WV_2003,
 					WV_6_0      = WV_VISTA,
 					WV_6_1      = WV_WINDOWS7,
+					WV_6_2		= WV_WINDOWS8
 				};
 				
 				static const WinVersion WindowsVersion;
@@ -445,6 +585,18 @@ namespace WitchEngine
 				static const AndroidOSVersion AndroidVersion;
 				static AndroidOSVersion androidVersion;
 #endif // WITCHENGINE_PLATFORM == WITCHENGINE_PLATFORM_ANDROID
+
+				enum ProcessorArchitecture
+				{
+					PA_AMD64 = 0x0010,
+					PA_ARM = 0x0020,
+					PA_IA64 = 0x0030,
+					PA_INTEL = 0x0040,
+					PA_UNKNOWN = 0x0050
+				};
+				
+				static const ProcessorArchitecture Architecture;
+				static ProcessorArchitecture architecture();
 			};
 			
 			WITCHENGINE_CORE_EXPORT const char* WitchVerstion();
@@ -628,17 +780,51 @@ inline WitchFlags<Flags::enum_type> operator|(Flags::enum_type f1, Flags::enum_t
 { return WitchFlags<Flags::enum_type>(f1) | f2; } \
 inline WitchFlags<Flags::enum_type> operator|(Flags::enum_type f1, WitchFlags<Flags::enum_type> f2) \
 { return f2 | f1; } WITCHENGINE_DECLARE_INCOMPATIBLE_FLAGS(Flags)
+
+/*
+   Some classes do not permit copies to be made of an object. These
+   classes contains a private copy constructor and assignment
+   operator to disable copying (the compiler gives an error message).
+*/
+#define WITCH_DISABLE_COPY(Class) \
+	private : \
+		Class(const Class &) = delete; \
+		Class(Class &&) = delete; \
+		void operator= (const Class &) = delete; \
+		void operator= (Class &&) = delete;
+		
+			WITCHENGINE_CORE_EXPORT char* getenv(const char *varName);
+			WITCHENGINE_CORE_EXPORT bool putenv(const char *varName, const char* value);
 			
 			/*
 			 * Defining tools to create type list.
 			*/
+			/*!
+			 \brief This structure represents a null type. Useful to represents the end of a TypeList.
+			*/
 			struct NullType { };	// Defining an empty type to represent the end of a list.
 			
+			/**
+				\struct TypeList
+				\author Alexandre Valentin Jamet
+				\date 07 Junuary 2013
+				\brief Provides a way to create a list of type. 
+				
+				\remarks Defines has been created to simplify creation of list :
+				\code{.cpp}
+					typedef TypeList<char, TypeList<short, TypeList<int, NullType> > > IntegerTypes;
+					// Previous line equivalent to the next.
+					typedef TYPELIST_3(char, short, int> IntegerTypes;
+				\endcode
+				
+				The define specifies how much types you can put. TYPELIST_5 will create a type list of 5 types.
+				Algorithms are also defined to act on TypeList, these algorithms take form of external template structures.
+			**/
 			template <typename T, typename S>
 			struct TypeList
 			{
-				typedef T Head;
-				typedef S Tail;
+				typedef T Head;	/*!< Represents the type at the current level. */
+				typedef S Tail;	/*!< If NullType represents the end of the list otherwise represents the next level of the list. */
 			};
 			
 #define TYPELIST_1(t1) \

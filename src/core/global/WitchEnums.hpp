@@ -1,23 +1,40 @@
 /*
  * The file is part of WitchEngine.
  * Copyright (C) 2012 The Team Entertainment
+ * Contact: http://www.theteamentertainment.com/license
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * Commercial License Usage
+ * Licensees holding valid WitchEngine licenses may use this file in
+ * accordance with the commercial license agreement provided with the
+ * Software or, alternatively, in accordance with the terms contained in
+ * a written agreement between you and The Team Entertainment. For licensing terms and
+ * conditions see http://www.theteamentertainment.com/licensing. For further information
+ * use the contact from at http://www.theteamentertainment.com/contact-us
+ *
+ * GNU General Public License Usage
+ * Alternatively, this file may be used under the terms of the GNU
+ * General Public License version 3.0 as published be the Free Software
+ * Foundation and appearing in the file COPYING included in the
+ * packaging of the file. Please review the following information to
+ * ensure the GNU General Public License version 3.0 requirements will be
+ * met: http://www.gnu.org/copyleft/gpl.html
+ *
+ * GNU Lesser General Public License Usage
+ * Alternatively, this file may be used under the terms of the GNU Lesser
+ * General Public License version 3.0 as published by the Free Software
+ * Foundation and appearing in the file COPYING.LESSER includd in the
+ * packaging of this file. Please review the following information to
+ * ensure the GNU Lesser General Public Lecense version 3.0 requirements
+ * will be met: http://www.gnu.org/copyleft/lesser.html
+ *
 */
 
 #ifndef __WITCHENGINE_CORE_WITCHENGINEENUMS_HPP__
 #define __WITCHENGINE_CORE_WITCHENGINEENUMS_HPP__
+
+WITCH_BEGIN_HEADER
+
+WITCH_MODULE(Core)
 
 namespace WitchEngine
 {
@@ -91,22 +108,6 @@ namespace WitchEngine
 			Error
 		};
 		
-		enum OpenModeFlag
-		{
-			ReadOnly = 0x0001,					/*!< The device is open for reading. */
-			
-			WriteOnly = 0x0002,					/*!< The device is open for writing. */
-			
-			ReadWrite = ReadOnly | WriteOnly,	/*!< The device is open for reading and writing. */
-			
-			Append = 0x0004,					/*!< The device is opened in append mode, so that all data is written to the end of the file. */
-			
-			Truncate = 0x0008,					/*!< If possible, the device is truncated before it is opened. All earlier contents of the device are lost. */
-			
-			Text = 0x0010						/*!< When reading, the end-of-line terminators are translated to '\n'. When writing, the end-of-line terminators are translated to the local encoding, for example '\r\n' for Win32. */
-		};
-		WITCHENGINE_DECLARE_FLAGS(OpenMode, OpenModeFlag)
-		
 		enum KeyboardModifier
 		{
 			NoModifier = 0x00,
@@ -146,7 +147,8 @@ namespace WitchEngine
 			VertexShader,		/*!< */
 			FragmentShader,		/*!< */ 
 			GeometryShader,		/*!< */
-			ComputeShader		/*!< */
+			ComputeShader,		/*!< */
+			RayTracingShader
 		};
 		
 		enum GraphicalDriver
@@ -162,9 +164,16 @@ namespace WitchEngine
 		**/
 		enum GraphicalDriverVersion
 		{
+#ifndef WITCHENGINE_NO_DIRECTX9_RENDERER // Only defined when available
 			DirectX_9		= 0x0010 | DirectX,		/*!< */
+#endif
+#ifndef WITCHENGINE_NO_DIRECTX10_RENDERER // Only defined when available
 			DirectX_10 		= 0x0020 | DirectX,		/*!< */
+#endif
+#ifndef WITCHENGINE_NO_DIRECTX11_RENDERER // Only defined when available
 			DirectX_11		= 0x0040 | DirectX,		/*!< */
+#endif
+#ifndef WITCHENGINE_NO_OPENGL_RENDERER	// Only defined when available
 			OpenGL_3_0		= 0x0010 | OpenGL,		/*!< */
 			OpenGL_3_1		= 0x0020 | OpenGL,		/*!< */
 			OpenGL_3_2		= 0x0040 | OpenGL,		/*!< */
@@ -174,12 +183,90 @@ namespace WitchEngine
 			OpenGL_4_1		= 0x0400 | OpenGL,		/*!< */
 			OpenGL_4_2		= 0x0800 | OpenGL,		/*!< */
 			OpenGL_4_3		= 0x1000 | OpenGL,		/*!< */
+#endif
+#ifndef WITCHENGINE_NO_OPENGLES_RENDERER // Only defined when available
 			OpenGL_ES_1_0	= 0x0010 | OpenGL_ES,	/*!< */
 			OpenGL_ES_1_1	= 0x0020 | OpenGL_ES,	/*!< */
 			OpenGL_ES_2_0	= 0x0040 | OpenGL_ES,	/*!< */
 			OpenGL_ES_3_0	= 0x0080 | OpenGL_ES	/*!< */
+#endif
 		};
+		
+		enum AlignmentFlag
+		{
+			AlignLeft = 0x0001,
+			AlignLeading = AlignLeft,
+			AlignRight = 0x0002,
+			AlignTrailing = AlignRight,
+			AlignHCenter = 0x0004,
+			AlignJustify = 0x0008,
+			AlignAbsolute = 0x0010,
+			AlignHorizontal_Mask = AlignLeft | AlignRight | AlignHCenter | AlignJustify | AlignAbsolute,
+			
+			AlignTop = 0x0020,
+			AlignBottom = 0x0040,
+			AlignVCenter = 0x0080,
+			AlignVerticalMask = AlignTop | AlignBottom | AlignVCenter
+			
+			AlignCenter = AlignHCenter | AlignVCenter
+		};
+		WITCH_DECLARE_FLAGS(Alignment, AlignmentsFlag)
+		
+		enum WindowType
+		{
+			Widget = 0x00000000,
+			Window = 0x00000001,
+			RendererWindow = 0x00000002 | Window,
+			Dialog = 0x00000004 | Window,
+			Tool = 0x00000008 | Window,
+			Popup = 0x00000010 | Window
+			ToolTip = 0x00000020 | Window
+		};
+		WITCH_DECLARE_FLAGS(WindowFlags, WindowType)
+		
+		enum WindowState
+		{
+			WindowNoState = 0x00000000,
+			WindowMinized = 0x00000001,
+			WindowMaximized = 0x00000002,
+			WindowFullScreen = 0x00000004,
+			WindowActive = 0x00000008
+		};
+		WITCH_DECLARE_FLAGS(WindowStates, WindowState)
+		
+		enum RendererType
+		{
+			RealTimeRenderer = 0x0001,
+			RayTracingRenderer = 0x0002,
+			MovieRenderer = 0x0004,
+			FrameRenderer = 0x0008,
+			
+			CinematicRenderer = RayTracingRenderer | MovieRenderer,
+			ImageRenderer = FrameRenderer | RayTracingRenderer,
+			GameRenderer = RealTimeRenderer
+		};
+		WITCH_DECLARE_FLAGS(RendererType, RendererFlags)
+		
+		enum RendererAttribute
+		{
+			RA_MovableMesh = 0,
+			RA_ShowAxis = 1,
+			RA_ShowFrameByFrame = 2,
+			RA_NoShader = 3,
+			RA_ShowableMenus = 4,
+			RA_MovableCamera = 5,
+			RA_UseMouseToMoveCamera = 6,
+			RA_UseApiShader = 7,
+			RA_UseRayTracingShader = 8,
+			RA_WireFrameMode = 9,
+			RA_TexturedMode = 10,
+			RA_MaterialMode = 11,
+			RA_ObjectMode = 12,
+		};
+		WITCH_DECLARE_FLAGS(RendererAttributes, RendererAttribute)
 	}
 }
+
+WITCH_END_HEADER
 
 #endif // __WITCHENGINE_CORE_WITCHENGINEENUMS_HPP__
