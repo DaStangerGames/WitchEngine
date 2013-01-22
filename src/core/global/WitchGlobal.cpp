@@ -34,6 +34,8 @@
 #if WITCHENGINE_PLATFORM == WITCHENGINE_PLATFORM_WIN32 || WITCHENGINE_PLATFORM_WIN64
 #	include <Windows.h>
 #	include <WindowsX.h>
+#else
+#	include <unistd.h>
 #endif
 
 #include <cstdlib>
@@ -231,6 +233,25 @@ namespace WitchEngine
 		}
 		
 		const WitchSystemInfo::ProcessorArchitecture WitchSystemInfo::Architecture = WitchSystemInfo::architecture();
+		
+		unsigned char WitchSystemInfo::processorCount()
+		{
+			static unsigned char count;
+			
+			if(count)
+				return count;
+				
+#if WITCHENGINE_PLATFORM == WITCHENGINE_PLATFORM_WIN32 || WITCHENGINE_PLATFORM == WITCHENGINE_PLATFORM_WIN64
+			SYSTEM_INFO sysinfo;
+			GetNativeSystemInfo(&sysinfo);
+			
+			return sysinfo.dwNumberOfProcessors;
+#else
+			return sysconf(_SC_NPROCESSORS_CONF);
+#endif
+		}
+		
+		const unsigned char WitchSystemInfo::ProcessorCount = WitchSystemInfo::processorCount();
 		
 		char* getenv(const char *varName)
 		{

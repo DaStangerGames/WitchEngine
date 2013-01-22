@@ -29,40 +29,121 @@
  *
 */
 
-#include "File.hpp"
+#include "Plugin.hpp"
 
 #if WITCHENGINE_PLATFORM == WITCHENGINE_PLATFORM_WIN32 || WITCHENGINE_PLATFORM == WITCHENGINE_PLATFORM_WIN64
-#	include "Win32/FileImpl.hpp"
+#	include "Win32/PluginImpl.hpp"
 #else
+#	include "Posix/PluginImpl.hpp"
 #endif
 
 namespace WitchEngine
 {
 	namespace Core
 	{
-		File::File() :
-			_filePath(),
+		Plugin::Plugin() :
 			_impl(nullptr),
-			_openMode(0x0)
+			_pluginPath()
 		{
 		}
 		
-		File::File(const String &filePath) :
-			_filePath(),
+		Plugin::Plugin(const String &pluginName) :
 			_impl(nullptr),
-			_openMode(0x0)
+			_pluginPath(pluginName)
 		{
 		}
 		
-		File::File(const String &filePath, OpenMode openMode) :
-			_filePath(filePath),
-			_impl(nullptr),
-			_openMode(openMode)
+		Plugin::~Plugin()
 		{
+			unload();
 		}
 		
-		File::~File()
+		bool Plugin::load()
 		{
+			unload();
+			
+			_impl = new PluginImpl;
+			if(!_impl->load(_pluginPath))
+			{
+				delete _impl;
+				_impl = nullptr;
+				
+				return false;
+			}
+			
+			return true;
+		}
+		
+		bool Plugin::load(const String &pluginPath)
+		{
+			unload();
+			
+			_impl = new PluginImpl;
+			if(!_impl->load(pluginPath))
+			{
+				delete _impl;
+				_impl = nullptr;
+				
+				return false;
+			}
+			
+			_pluginPath = pluginPath;
+			
+			return false;
+		}
+		
+		void Plugin::unload()
+		{
+			if(_impl)
+			{
+				_impl->unload();
+				delete _impl;
+				_impl = nullptr;
+			}
+		}
+		
+		bool Plugin::loaded() const
+		{
+			return (_impl == nullptr);
+		}
+		
+		String Plugin::path() const
+		{
+			return _pluginPath;
+		}
+		
+		void Plugin::setPath(const String &path)
+		{
+			if(loaded())
+			{
+				PluginImpl *impl = new PluginImpl;
+				if(!impl->load(path))
+				{
+					delete impl;
+				}
+				
+				_impl->unload();
+				delete _impl;
+				
+				_impl = impl;
+			}
+			
+			_pluginPath = path;
+		}
+		
+		IModule* Plugin::instance()
+		{
+			// Checking if the module is loaded.
+			if(!loaded())
+			{
+				// TODO: Throw an excpetion.
+				return nullptr;
+			}
+			
+			// Getting an unique instance of the module.
+			static IModule *inst = _impl->getSymbol("GetPlugin")();
+			
+			return inst;
 		}
 	}
 }

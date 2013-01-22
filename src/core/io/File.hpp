@@ -55,6 +55,13 @@ namespace WitchEngine
 		{
 			public:
 			
+				enum CursorPosition
+				{
+					AtBegin,
+					AtCurrent,
+					AtEnd
+				};
+				
 				enum OpenModeFlags
 				{
 					ReadOnly = 0x01,
@@ -65,6 +72,15 @@ namespace WitchEngine
 					Text = 0x10
 				};
 				WITCHENGINE_DECLARE_FLAGS(OpenMode, OpenModeFlags)
+				
+				enum Permission
+				{
+					ReadOwner = 0x4000, WriteOwner = 0x2000, ExeOwner = 0x1000,
+					ReadUser = 0x0400, WriteUser = 0x0200, ExeUser = 0x0100,
+					ReadGroup = 0x0040, WriteGroup = 0x0020, ExeGroup = 0x0010,
+					ReadOther = 0x0004, WriteOther = 0x0002, ExeOther = 0x0001
+				};
+				WITCHENGINE_DECLARE_FLAGS(Permissions, Permission)
 				
 				File();
 				File(const String &filePath);
@@ -93,15 +109,19 @@ namespace WitchEngine
 				bool isOpen() const;
 				
 				bool open(OpenMode openMode);
+				bool open(const String &filePath, OpenMode openMode);
 				
 				uint64 read(char* buffer, uint64 maxSize);
 				char* read(uint64 maxSize);
 				
 				bool rename(const String &filePath);
 				
+				bool setCursorPos(CursorPosition position, uint64 offset = 0);
+				bool setCursorPos(uint64 offset);
 				bool setPath(const String &path);
 				bool setOpenMode(OpenMode openMode);
 				
+				uint64 write(const String &string);
 				uint64 write(const char *data, uint64 maxSize);
 				uint64 write(const char *data);
 				

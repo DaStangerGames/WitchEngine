@@ -29,51 +29,41 @@
  *
 */
 
-#ifndef __WITCHENGINE_CORE_FILEIMPL_HPP__
-#define __WITCHENGINE_CORE_FILEIMPL_HPP__
-
-#include <WitchCore/WitchGlobal.hpp>
-#
-#include "../../kernel/String.hpp"
-#
-#include <Windows.h>
-#include <ctime>
+#include "Exception.hpp"
 
 namespace WitchEngine
 {
 	namespace Core
 	{
-		// Forward declaration.
-		class File;
-		
-		class FileImpl
+		WitchException::WitchException(const String &message, const String &file, const String &function, uint32 line) throw()
 		{
-			public:
-				void close();
-				bool endOfFile() const;
-				void flush();
-				
-				uint64 cursorPos() const;
-				bool  open(const String &path, File::OpenMode mode);
-				bool setCursorPos(File::CursorPosition pos, uint64 offset);
-				uint64 read(char *buffer, uint64 size);
-				char* read(uint64 size);
-				uint64 write(const char *buffer, uint64 maxSize);
-				uint64 write(const char *buffer);
-				
-				static bool copy(const String &sourcePath, const String &targetPath);
-				static bool remove(const String &filePath);
-				static bool exists(const String &filePath);
-				static std::time_t creationTime(const String &filePath);
-				static std::time_t lastAccessTime(const String &filePath);
-				static std::time_t lastWriteTime(const String &filePath);
-				static uint64 size(const String &filePath);
-				static bool rename(const String &sourcePath, const String &targetPath);
+		}
+		
+		WitchException::~WitchException() throw()
+		{
+		}
+		
+		const char* WitchException::what() const throw()
+		{
+		}
+		
+		String WitchException::description() const
+		{
+		}
 			
-			private:
-				HANDLE _handle;
-		};
+		String WitchException::file() const
+		{
+			return _file;
+		}
+		
+		String WitchException::function() const
+		{
+			return _function;
+		}
+		
+		uint32 WitchException::line() const
+		{
+			return _line;
+		}
 	}
 }
-
-#endif // __WITCHENGINE_CORE_FILEIMPL_HPP__

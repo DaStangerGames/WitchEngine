@@ -34,7 +34,7 @@
 
 #include <WitchCore/WitchGlobal.hpp>
 #
-#include <excpetion>
+#include <exception>
 #
 #include "String.hpp"
 
@@ -49,18 +49,20 @@ namespace WitchEngine
 		class WITCHENGINE_CORE_EXPORT WitchException : public std::exception
 		{
 			public:
-				WitchException(const String &message, const String &file, uint32 line) throw();
+				WitchException(const String &message, const String &file, const String &function, uint32 line) throw();
 				virtual ~WitchException() throw();
 				
 				const char* what() const throw();
 				
 				String description() const;
 				String file() const;
+				String function() const;
 				uint32 line() const;
 				
 			private:
 				String _message;
 				String _file;
+				String _function;
 				uint32 _line;
 		};
 	}

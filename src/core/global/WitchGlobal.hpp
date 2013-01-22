@@ -221,6 +221,8 @@ namespace WitchEngine
 #	define WITCHENGINE_NO_OPENGL_RENDERER
 #	define WITCHENGINE_NO_ON_THE_FLY_RENDERER_LOADING
 #	define WITCHENGINE_NO_CONTROL_DEVICES	/* Dissabling external control devices under mobile platforms because there's no way to connect them. */
+#	define WITCHENGINE_NO_CUDA_SUPPORTS
+#	define WITCHENGINE_NO_OPENCL_SUPPORTS
 #elif defined(__ANDROID__)
 #	define WITCHENGINE_PLATFORM WITCHENGINE_PLATFORM_ANDROID
 #	define WITCHENGINE_PLATFORM_KIND	WITCHENGINE_PLATFORM_KIND_POSIX
@@ -231,6 +233,8 @@ namespace WitchEngine
 #	define WITCHENGINE_NO_OPENGL_RENDERER
 #	define WITCHENGINE_NO_ON_THE_FLY_RENDERER_LOADING
 #	define WITCHENGINE_NO_CONTROL_DEVICES	/* Dissabling external control devices under mobile platforms because there's no way to connect them. */
+#	define WITCHENGINE_NO_CUDA_SUPPORTS
+#	define WITCHENGINE_NO_OPENCL_SUPPORTS
 #endif
 
 // Checking the architecture.
@@ -354,7 +358,7 @@ namespace WitchEngine
 #	define WITCHENGINE_PHYSIC_EXPORT		WITCHENGINE_IMPORT
 #	define WITCHENGINE_NETWORK_EXPORT		WITCHENGINE_IMPORT
 #	define WITCHENGINE_AI_EXPORT			WITCHENGINE_IMPORT
-#	define WUTCHENGINE_RAYTRACER_EXPORT		WITCHENGINE_IMPORT
+#	define WITCHENGINE_RAYTRACER_EXPORT		WITCHENGINE_IMPORT
 #endif
 
 #if !defined(WITCHENGINE_CORE_EXPORT)
@@ -597,6 +601,10 @@ namespace WitchEngine
 				
 				static const ProcessorArchitecture Architecture;
 				static ProcessorArchitecture architecture();
+				
+				static const unsigned char ProcessorCount;
+				static unsigned char processorCount();
+				
 			};
 			
 			WITCHENGINE_CORE_EXPORT const char* WitchVerstion();

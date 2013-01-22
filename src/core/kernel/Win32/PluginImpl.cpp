@@ -29,51 +29,42 @@
  *
 */
 
-#ifndef __WITCHENGINE_CORE_FILEIMPL_HPP__
-#define __WITCHENGINE_CORE_FILEIMPL_HPP__
-
-#include <WitchCore/WitchGlobal.hpp>
-#
-#include "../../kernel/String.hpp"
-#
-#include <Windows.h>
-#include <ctime>
+#include "PluginImpl.hpp"
 
 namespace WitchEngine
 {
 	namespace Core
 	{
-		// Forward declaration.
-		class File;
-		
-		class FileImpl
+		ModuleFunc PluginImpl::getSymbol(const String &symbolName) const
 		{
-			public:
-				void close();
-				bool endOfFile() const;
-				void flush();
-				
-				uint64 cursorPos() const;
-				bool  open(const String &path, File::OpenMode mode);
-				bool setCursorPos(File::CursorPosition pos, uint64 offset);
-				uint64 read(char *buffer, uint64 size);
-				char* read(uint64 size);
-				uint64 write(const char *buffer, uint64 maxSize);
-				uint64 write(const char *buffer);
-				
-				static bool copy(const String &sourcePath, const String &targetPath);
-				static bool remove(const String &filePath);
-				static bool exists(const String &filePath);
-				static std::time_t creationTime(const String &filePath);
-				static std::time_t lastAccessTime(const String &filePath);
-				static std::time_t lastWriteTime(const String &filePath);
-				static uint64 size(const String &filePath);
-				static bool rename(const String &sourcePath, const String &targetPath);
+			ModuleFunc symbol = reinterpret_cast<ModuleFunc>(GetProcAddress(_library, symbolName.constBuffer()));
 			
-			private:
-				HANDLE _handle;
-		};
+			if(!symbol)
+				// TODO: Throw an excpetion.
+				
+			return symbol;
+		}
+		
+		bool PluginImpl::load(const String &filePath)
+		{
+			String path = filePath;
+			
+			wchar_t *pathW;
+			_library = LoadLibraryExW(pathW, nullptr, LOAD_WITH_ALTERED_SEARCH_PATH);
+			delete[] pathW;
+			
+			if(_library)
+				return true;
+			else
+			{
+				// TODO: Throw an exception.
+				return false;
+			}
+		}
+		
+		bool PluginImpl::unload()
+		{
+			FreeLibrary(_library);
+		}
 	}
 }
-
-#endif // __WITCHENGINE_CORE_FILEIMPL_HPP__

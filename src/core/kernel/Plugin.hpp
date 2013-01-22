@@ -29,51 +29,56 @@
  *
 */
 
-#ifndef __WITCHENGINE_CORE_FILEIMPL_HPP__
-#define __WITCHENGINE_CORE_FILEIMPL_HPP__
+#ifndef __WITCHENGINE_CORE_PLUGINLOADER_HPP__
+#define __WITCHENGINE_CORE_PLUGINLOADER_HPP__
 
 #include <WitchCore/WitchGlobal.hpp>
 #
-#include "../../kernel/String.hpp"
-#
-#include <Windows.h>
-#include <ctime>
+#include "String.hpp"
 
 namespace WitchEngine
 {
 	namespace Core
 	{
-		// Forward declaration.
-		class File;
-		
-		class FileImpl
+		class WITCHENGINE_CORE_EXPORT IModule
 		{
 			public:
-				void close();
-				bool endOfFile() const;
-				void flush();
+				virtual ~IModule() = 0;
 				
-				uint64 cursorPos() const;
-				bool  open(const String &path, File::OpenMode mode);
-				bool setCursorPos(File::CursorPosition pos, uint64 offset);
-				uint64 read(char *buffer, uint64 size);
-				char* read(uint64 size);
-				uint64 write(const char *buffer, uint64 maxSize);
-				uint64 write(const char *buffer);
+				virtual String versionString() const = 0;
+				virtual String author() const = 0;
+				virtual String name() const = 0;
+		};
+		
+		typedef IModule* (*ModuleFunc)();
+		
+		// Forward declaration.
+		class PluginImpl;
+		
+		class Plugin
+		{
+			public:
+				Plugin();
+				Plugin(const String &pluginPath);
+				~Plugin();
 				
-				static bool copy(const String &sourcePath, const String &targetPath);
-				static bool remove(const String &filePath);
-				static bool exists(const String &filePath);
-				static std::time_t creationTime(const String &filePath);
-				static std::time_t lastAccessTime(const String &filePath);
-				static std::time_t lastWriteTime(const String &filePath);
-				static uint64 size(const String &filePath);
-				static bool rename(const String &sourcePath, const String &targetPath);
-			
+				bool load();
+				bool load(const String &pluginPath);
+				
+				void unload();
+				
+				bool loaded() const;
+				
+				String path() const;
+				void setPath(const String &path);
+				
+				IModule* instance();
+				
 			private:
-				HANDLE _handle;
+				PluginImpl *_impl;
+				String _pluginPath;
 		};
 	}
 }
 
-#endif // __WITCHENGINE_CORE_FILEIMPL_HPP__
+#endif // __WITCHENGINE_COER_PLUGINLOADER_HPP__

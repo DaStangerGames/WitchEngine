@@ -391,28 +391,28 @@ See Also: ???
 
 Feature: VERTEX_SHADER
 Description: Support vertex shader.
-Section:
+Section: Shaders
 Requires: OPENGL_RENDERER | OPENGLES_RENDERER | DIRECTX9_RENDERER | DIRECTX10_RENDERER | DIRECTX11_RENDERER
 Name:
 See Also: ???
 
 Feature: FRAGMENT_SHADER
 Description: Support fragments shader.
-Section:
+Section: Shaders
 Requires: OPENGL_RENDERER | OPENGLES_RENDERER | DIRECTX9_RENDERER | DIRECTX10_RENDERER | DIRECTX11_RENDERER
 Name:
 See Also: ???
 
 Feature: GEOMETRY_SHADER
 Description: Support geometry shader.
-Section:
+Section: Shaders
 Requires: OPENGL_RENDERER | OPENGLES_RENDERER | DIRECTX10_RENDERER | DIRECTX11_RENDERER
 Name:
 See Also: ???
 
 Feature: COMPUTE_SHADER
 Description: Support compute shader.
-Section:
+Section: Shaders
 Requires: OPENGL_RENDERER | DIRECTX11_RENDERER
 Name:
 See Also: ???
@@ -426,6 +426,30 @@ Requires: EXTERNAL_MODULES_LOADER
 Name: Ray-tracing Renderer
 See Also: ???
 
+Feature: RAYTRACING_SHADER
+Description: Supports dedicated shaders for the ray-tracing renderer.
+Section: Shaders
+Requires: RAYTRACING_RENDERER
+Name
+See Also: ???
+
+# Graphical Acceleration
+
+Feature: CUDA_SUPPORT
+Description: Supports for the CUDA API.
+Section: Graphical Acceleration
+Requires:
+Name: CUDA Support
+See Also: ???
+
+Feature: OPENCL_SUPPORT
+Description: Supports for the OpenCL API.
+Section: Graphical Acceleration
+Requires:
+Name: OpenCL Support
+See Also: ???
+
+
 # Physics
 
 Feature: PHYSIC
@@ -435,10 +459,21 @@ Requires:
 Name: WitchPhysic module
 See Also: ???
 
+Feature: DESTRUCTION
+Description: Provides classes to support
+Section: Physic
+Requires: PHYSIC
+Name: Destruction
+See Also: ???
+
+Feature: REALTIME_DESTRUCTION
+Description: Provides a way use the graphical acceleration to performs real time destruction.
+Requires: PHYSIC & DESTRUCTION & (CUDA_SUPPORT | OPENCL_SUPPORT)
+
 Feature: MATH_MODELS
 Description: Provides a way to mathematic models to simulate the comportements of a physic system.
 Section: Physic
-Requires: PHYSIC EQUATIONPARSER
+Requires: PHYSIC & EQUATIONPARSER
 Name: MathModel
 See Also: ???
 
