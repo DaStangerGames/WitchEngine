@@ -439,6 +439,450 @@ namespace WitchEngine
 			return npos;
 		}
 		
+		unsigned int String::findAny(const char *string, int start, Flags flags) const
+		{
+			if(_buffer->size == 0 || !string || !string[0])
+				return npos;
+			
+			if(start < 0)
+				start = std::max(_buffer->size + start, 0U);
+				
+			unsigned int pos = static_cast<unsigned int>(start);
+			if(pos >= _buffer->size)
+				return npos;
+				
+			char *str = &_buffer->data[pos];
+			if(flags & HandleUtf8)
+			{
+				while(utf8::internal::is_trail(*str))
+					str++;
+					
+				utf8::unchecked::iterator<const char *> it(str);
+				
+				if(flags & CaseInsensitive)
+				{
+					do
+					{
+						utf8::unchecked::iterator<const char *> it2(string);
+						// TODO: Complete this part.
+					}
+					while(*++it);
+				}
+				else
+				{
+					do
+					{
+						utf8::unchecked::iterator<const char *> it2(string);
+						do
+						{
+							if(*it == *it2)
+								return it.base() - _buffer->data;
+						}
+						while(*++it2);
+					}
+					while(*++it);
+				}
+			}
+			else
+			{
+				if(flags & CaseInsensitive)
+				{
+					do
+					{
+						const char *c = string;
+						char character = toLower(*str);
+						do
+						{
+							if(character == toLower(*c))
+								return str - _buffer->data;
+						}
+						while(*++c);
+					}
+					while(*++str);
+				}
+				else
+				{
+					str = std::strpbrk(str, string);
+					if(str)
+						return str - _buffer->data;
+				}
+			}
+			
+			return npos;
+		}
+		
+		unsigned int String::findAny(const String &string, int start, Flags flags) const
+		{
+			if(_buffer->size == 0 || string._buffer->size == 0)
+				return npos;
+				
+			if(string._buffer->size > _buffer->size)
+				return npos;
+				
+			if(start < 0)
+				start = std::max(_buffer->size + start, 0U);
+				
+			unsigned int pos = static_cast<unsigned int>(start);
+			if(pos >= _buffer->size)
+				return npos;
+				
+			char *str = &_buffer->data[pos];
+			if(flags & HandleUtf8)
+			{
+				while(utf8::internal::is_trail(*str))
+					str++;
+					
+				utf8::unchecked::iterator<const char *> it(str);
+				
+				if(flags & CaseInsensitive)
+				{
+					do
+					{
+						utf8::unchecked::iterator<const char *> it2(string._buffer->data);
+						// TODO: complete this part.
+					}
+					while(*++it);
+				}
+				else
+				{
+					do
+					{
+						utf8::unchecked::iterator<const char *> it2(string._buffer->data);
+						do
+						{
+							if(*it == *it2)
+								return it.base() - _buffer->data;
+						}
+						while(*++it2);
+					}
+					while(*++it);
+				}
+			}
+			else
+			{
+				if(flags & CaseInsensitive)
+				{
+					do
+					{	
+						const char *c= string._buffer->data;
+						char character = toLower(*str);
+						do
+						{
+							if(character == toLower(*c))
+								return str - _buffer->data;
+						}
+						while(*++c);
+					}
+					while(*++str);
+				}
+				else
+				{
+					str = std::strpbrk(str, string._buffer->data);
+					if(str)
+						return str - _buffer->data;
+				}
+			}
+			
+			return npos;
+		}
+		
+		unsigned int String::findLast(char character, int start, Flags flags) const
+		{
+			if(character == '\0' || _buffer->size == 0)
+				return npos;
+				
+			if(start < 0)
+				start = std::max(static_cast<int>(_buffer->size + start), 0);
+				
+			unsigned int pos = static_cast<unsigned int>(start);
+			if(pos >= _buffer->size)
+				return npos;
+				
+			char *ptr = &_buffer->data[_buffer->size - 1];
+			
+			if(flags & CaseInsensitive)
+			{
+				character = toLower(character);
+				do
+				{
+					if(toLower(*ptr) == character)
+						return static_cast<unsigned int>(ptr - _buffer->data);
+				}
+				while(ptr-- != _buffer->data);
+			}
+			else
+			{
+				do
+				{
+					if(*ptr == character)
+						return static_cast<unsigned int>(ptr - _buffer->data);
+				}
+				while(ptr-- != _buffer->data);
+			}
+			
+			return npos;
+		}
+		
+		unsigned int String::findLast(const char *string, int start, Flags flags) const
+		{
+			if(!string || !string[0] || _buffer->size == 0)
+				return npos;
+				
+			if(start < 0)
+				start = std::max(static_cast<int>(_buffer->size + start), 0);
+				
+			unsigned int pos = static_cast<unsigned int>(start);
+			if(pos >= _buffer->size);
+				return npos;
+				
+			const char *ptr = &_buffer->data[pos];
+			if(flags & CaseInsensitive)
+			{
+				if(flags & HandleUtf8)
+				{
+					if(utf8::internal::is_trail(*ptr))
+						utf8::unchecked::prior(ptr);
+						
+					utf8::unchecked::iterator<const char *> it(ptr);
+					const char *t = string;
+					// TODO: Complete this part.
+				}
+				else
+				{
+					char c = toLower(string[0]);
+					do
+					{
+						if(toLower(*ptr) == c)
+						{
+							const char *p = &string[1];
+							const char *tPtr = ptr + 1;
+							while(true)
+							{
+								if(*p == '\0')
+									return ptr - _buffer->data;
+									
+								if(tPtr > &_buffer->data[pos])
+									break;
+									
+								if(toLower(*tPtr) != toLower(*p))
+									break;
+									
+								p++;
+								tPtr++;
+							}
+						}
+					}
+					while(ptr-- != _buffer->data);
+				}
+			}
+			else
+			{
+				do
+				{
+					if(*ptr == string[0])
+					{
+						const char *p = &string[1];
+						const char *tPtr = ptr + 1;
+						while(true)
+						{
+							if(*p == '\0')
+								return ptr - _buffer->data;
+								
+							if(tPtr > &_buffer->data[pos])
+								break;
+								
+							if(*tPtr != *p)
+								break;
+									
+							p++;
+							tPtr++;
+						}
+					}
+				}
+				while(ptr-- != _buffer->data);
+			}
+			
+			return npos;
+		}
+		
+		unsigned int String::findLast(const String &string, int start, Flags flags) const
+		{
+			if(string._buffer->size == 0 || string._buffer->size > _buffer->size)
+				return npos;
+				
+			if(start < 0)
+				start = std::max(static_cast<int>(_buffer->size + start), 0);
+				
+			unsigned int pos = static_cast<unsigned int>(start);
+			if(pos >= _buffer->size || string._buffer->size > _buffer->size)
+				return npos;
+				
+			const char *ptr = &_buffer->data[pos];
+			const char *limit = &_buffer->data[_buffer->size - 1];
+			
+			if(flags & CaseInsensitive)
+			{
+				if(flags & HandleUtf8)
+				{
+				}
+				else
+				{
+					char c = toLower(string._buffer->data[string._buffer->size - 1]);
+					while(true)
+					{
+						if(toLower(*ptr) == c)
+						{
+							const char *p = &string._buffer->data[string._buffer->size - 1];
+							for(; p >= &string._buffer->data[0]; --p, --ptr)
+							{
+								if(toLower(*ptr) != toLower(*p))
+									break;
+									
+								if(p == &string._buffer->data[0])
+									return ptr - _buffer->data;
+									
+								if(ptr == _buffer->data)
+									return npos;
+							}
+						}
+						else if(ptr-- <= limit)
+							break;
+					}
+				}
+			}
+			else
+			{
+				while(true)
+				{
+					if(*ptr == string._buffer->data[string._buffer->size - 1])
+					{
+						const char *p = &string._buffer->data[string._buffer->size - 1];
+						for(; p >= &string._buffer->data[0]; --p, --ptr)
+						{
+							if(*ptr != *p)
+								break;
+								
+							if(p == &string._buffer->data[0])
+								return ptr - _buffer->data;
+								
+							if(ptr == _buffer->data)
+								return npos;
+						}
+					}
+					else if(ptr-- <= limit)
+						break;
+				}
+			}
+			
+			return npos;
+		}
+		
+		unsigned int String::findLastAny(const char *string, int start, Flags flags) const
+		{
+			if(_buffer->size == 0 || !string || !string[0])
+				return npos;
+				
+			if(start < 0)
+				start = std::max(_buffer->size + start, 0U);
+				
+			unsigned int pos = static_cast<unsigned int>(start);
+			if(pos >= _buffer->size)
+				return npos;
+				
+			char *str = &_buffer->data[pos];
+			if(flags & HandleUtf8)
+			{
+				// TODO: Complete this part.
+			}
+			else
+			{
+				if(flags & CaseInsensitive)
+				{
+					do
+					{
+						const char *c = string;
+						char character = toLower(*str);
+						do
+						{
+							if(character == toLower(*c))
+								return str - _buffer->data;
+						}
+						while(*++c);
+					}
+					while(str-- != _buffer->data);
+				}
+				else
+				{
+					do
+					{
+						const char *c = string;
+						do
+						{
+							if(*str == *c)
+								return str - _buffer->data;
+						}
+						while(*++c);
+					}
+					while(str-- != _buffer->data);
+				}
+			}
+			
+			return npos;
+		}
+		
+		unsigned int String::findLastAny(const String &string, int start, Flags flags) const
+		{
+			if(_buffer->size == 0 || string._buffer->size == 0)
+				return npos;
+				
+			if(start < 0)
+				start = std::max(_buffer->size + start, 0U);
+				
+			unsigned int pos = static_cast<unsigned int>(start);
+			if(pos >= _buffer->size)
+				return npos;
+				
+			char *str = &_buffer->data[pos];
+			if(flags & HandleUtf8)
+			{
+				// TODO: Complete this part.
+			}
+			else
+			{
+				if(flags & CaseInsensitive)
+				{
+					do
+					{
+						const char *c = string._buffer->data;
+						char character = toLower(*str);
+						do
+						{
+							if(character == toLower(*c))
+								return str - _buffer->data;
+						}
+						while(*++c);
+					}
+					while(str-- != _buffer->data);
+				}
+				else
+				{
+					do
+					{
+						const char *c = string._buffer->data;
+						do
+						{
+							if(*str == *c)
+								return str - _buffer->data;
+						}
+						while(*++c);
+					}
+					while(str-- != _buffer->data);
+				}
+			}
+			
+			return npos;
+		}
+		
 		char* String::buffer()
 		{
 			ensureOwnership();
