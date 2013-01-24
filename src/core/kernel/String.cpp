@@ -274,6 +274,307 @@ namespace WitchEngine
 				releaseString();
 		}
 		
+		bool String::contains(char character, int start, Flags flags) const
+		{
+			return find(character, start, flags) != npos;
+		}
+		
+		bool String::contains(const char *string, int start, Flags flags) const
+		{
+			return find(string, start, flags) != npos;
+		}
+		
+		unsigned int String::count(char character, int start, Flags flags) const
+		{
+			if(character == '\0' || _buffer->size == 0)
+				return 0;
+				
+			if(start < 0)
+				start = std::max(static_cast<int>(_buffer->size + start), 0);
+				
+			unsigned int pos = static_cast<unsigned int>(start);
+			if(pos >= _buffer->size)
+				return 0;
+				
+			char *str = &_buffer->data[pos];
+			unsigned int count = 0;
+			if(flags & CaseInsensitive)
+			{
+				char character_lower = tolower(character);
+				char character_upper = toUpper(character);
+				do
+				{
+					if(*str == character_lower || *str == character_upper)
+						count++;
+				}
+				while(*++str);
+			}
+			else
+			{
+				while((str = std::strchr(str, character)))
+				{
+					count++;
+					str++;
+				}
+			}
+			
+			return count;
+		}
+		
+		unsigned int String::count(const char *string, int start, Flags flags) const
+		{
+			if(!string || !string[0] || _buffer->size == 0)
+				return 0;
+				
+			if(start < 0)
+				start = std::max(static_cast<int>(_buffer->size + start), 0);
+				
+			unsigned int pos = static_cast<unsigned int>(start);
+			if(pos >= _buffer->size)
+				return 0;
+				
+			char *str = &_buffer->data[pos];
+			unsigned int count = 0;
+			if(flags & CaseInsensitive)
+			{
+				if(flags & HandleUtf8)
+				{
+					// TODO: Complete this part.
+				}
+				else
+				{
+					char c = toLower(string[0]);
+					do
+					{
+						if(toLower(*str) == c)
+						{
+							str++;
+							
+							const char *ptr = &string[1];
+							while(true)
+							{
+								if(*ptr == '\0')
+								{
+									count++;
+									break;
+								}
+								
+								if(*str == '\0')
+									return count;
+									
+								if(toLower(*str) != tolower(*ptr))
+									break;
+									
+								ptr++;
+								str++;
+							}
+						}
+					}
+					while(*++str);
+				}
+			}
+			else
+			{
+				while((str = std::strstr(str, string)))
+				{
+					count++;
+					str++;
+				}
+			}
+			
+			return count;
+		}
+		
+		unsigned int String::count(const String &string, int start, Flags flags) const
+		{
+			if(string._buffer->size == 0 || string._buffer->size > _buffer->size)
+				return 0;
+				
+			if(start < 0)
+				start = std::max(static_cast<int>(_buffer->size + start), 0);
+				
+			unsigned int pos = static_cast<unsigned int>(start);
+			if(pos >= _buffer->size)
+				return 0;
+				
+			char *str = &_buffer->data[pos];
+			unsigned int count = 0;
+			if(flags & CaseInsensitive)
+			{
+				if(flags & HandleUtf8)
+				{
+					// TODO: Complete this part.
+				}
+				else
+				{
+					char c = toLower(string._buffer->data[0]);
+					do
+					{
+						if(toLower(*str) == c)
+						{
+							str++;
+							
+							const char *ptr = &string._buffer->data[1];
+							while(true)
+							{
+								if(*ptr == '\0')
+								{
+									count++;
+									break;
+								}
+								
+								if(*str == '\0')
+									return count;
+									
+								if(toLower(*str) != toLower(*ptr))
+									break;
+									
+								ptr++;
+								str++;
+							}
+						}
+					}
+					while(*++str);
+				}
+			}
+			else
+			{
+				while((str = std::strstr(str, string._buffer->data)))
+				{
+					count++;
+					str++;
+				}
+			}
+			
+			return count;
+		}
+		
+		unsigned String::countAny(const char *string, int start, Flags flags) const
+		{
+			if(!string || !string[0] || _buffer->size == 0)
+				return 0;
+				
+			if(start < 0)
+				start = std::max(static_cast<int>(_buffer->size + start), 0);
+				
+			unsigned int pos = static_cast<unsigned int>(start);
+			if(pos >= _buffer->size)
+				return 0;
+				
+			char *str = &_buffer->data[pos];
+			unsigned int count = 0;
+			if(flags & HandleUtf8)
+			{
+				while(utf8::internal::is_trail(*str))
+					str++;
+					
+				utf8::unchecked::iterator<const char *> it(str);
+				
+				// TODO: Complete this part0
+			}
+			else
+			{
+				if(flags & CaseInsensitive)
+				{
+					do
+					{
+						const char *c = string;
+						do
+						{
+							if(toLower(*str) == toLower(*c))
+							{
+								count++;
+								break;
+							}
+						}
+						while(*++c);
+					}
+					while(*++str);
+				}
+				else
+				{
+					while((str == strpbrk(str, string)))
+					{
+						count++;
+						str++;
+					}
+				}
+			}
+			
+			return count;
+		}
+		
+		unsigned int String::countAny(const String &string, int start, Flags flags) const
+		{
+			if(string._buffer->size == 0 || _buffer->size == 0)
+				return 0;
+				
+			if(start < 0)
+				start = std::max(static_cast<int>(_buffer->size + start), 0);
+				
+			unsigned int pos = static_cast<unsigned int>(start);
+			if(pos >= _buffer->size)
+				return 0;
+				
+			char *str = &_buffer->data[pos];
+			unsigned int count = 0;
+			if(flags & HandleUtf8)
+			{
+				while(utf8::internal::is_trail(*str))
+					str++;
+					
+				utf8::unchecked::iterator<const char *> it(str);
+				
+				// TODO: Complete this part.
+			}
+			else
+			{
+				if(flags & CaseInsensitive)
+				{
+					do
+					{
+						const char *c = string._buffer->data;
+						do
+						{
+							if(toLower(*str) == tolower(*c))
+							{
+								count++;
+								break;
+							}
+						}
+						while(*++c);
+					}
+					while(*++str);
+				}
+				else
+				{
+					while((str = strpbrk(str, string._buffer->data)))
+					{
+						count++;
+						str++;
+					}
+				}
+			}
+			
+			return count;
+		}
+		
+		bool String::endsWith(char character, Flags flags) const
+		{	
+			if(_buffer->size == 0)
+				return 0;
+				
+			if(flags & CaseInsensitive)
+				return toLower(_buffer->data[_buffer->size - 1]) == toLower(character);
+			else
+				return _buffer->data[_buffer->size - 1] == character;
+		}
+		
+		bool String::contains(const String &string, int start, Flags flags) const
+		{
+			return find(string, start, flags) != npos;
+		}
+		
 		unsigned int String::find(char character, int start, Flags flags) const
 		{
 			if(character == '\0' || _buffer->size == 0)
@@ -877,6 +1178,337 @@ namespace WitchEngine
 						while(*++c);
 					}
 					while(str-- != _buffer->data);
+				}
+			}
+			
+			return npos;
+		}
+		
+		unsigned int String::findLastWord(const char *string, int start, Flags flags) const
+		{
+			if(!string || !string[0] || _buffer->size == 0)
+				return npos;
+				
+			if(start < 0)
+				start = std::max(static_cast<int>(_buffer->size + start), 0);
+				
+			unsigned int pos = static_cast<unsigned int>(start);
+			if(pos >= _buffer->size)
+				return npos;
+				
+			const char *ptr = &_buffer->data[pos];
+			
+			if(flags & HandleUtf8)
+			{
+				// TODO: Complete this part.
+			}
+			else
+			{
+				if(flags & CaseInsensitive)
+				{
+					char c = toLower(string[0]);
+					do
+					{
+						if(toLower(*ptr) == c)
+						{
+							if(ptr != _buffer->data && !std::isspace(*(ptr - 1)))
+								continue;
+								
+							const char *p = &string[1];
+							const char *tPtr = ptr + 1;
+							while(true)
+							{
+								if(*p == '\0')
+								{
+									if(*tPtr == '\0' || std::isspace(*tPtr))
+										return ptr - _buffer->data;
+									else
+										break;
+								}
+								
+								if(tPtr > & _buffer->data[pos])
+									break;
+									
+								if(toLower(*tPtr) != toLower(*p))
+									break;
+									
+								p++;
+								tPtr++;
+							}
+						}
+					}
+					while(ptr-- != _buffer->data);
+				}
+				else
+				{
+					do
+					{
+						if(*ptr == string[0])
+						{
+							if(ptr != _buffer->data && !std::isspace(*(ptr - 1)))
+								continue;
+								
+							const char *p = &string[1];
+							const char *tPtr = ptr + 1;
+							while(true)
+							{
+								if(*p == '\0')
+								{
+									if(*tPtr == '\0' || std::isspace(*tPtr))
+										return ptr - _buffer->data;
+									else
+										break;
+								}
+								
+								if(tPtr > &_buffer->data[pos])
+									break;
+									
+								if(*tPtr != *p)
+									break;
+									
+								p++;
+								tPtr++;
+							}
+						}
+					}
+					while(ptr-- != _buffer->data);
+				}
+			}
+			
+			return npos;
+		}
+		
+		unsigned int String::findLastWord(const String &string, int start, Flags flags) const
+		{
+			if(string._buffer->size == 0 || string._buffer->size > _buffer->size)
+				return npos;
+				
+			if(start < 0)
+				start = std::max(static_cast<int>(_buffer->size + start), 0);
+				
+			unsigned int pos = static_cast<unsigned int>(start);
+			if(pos >= _buffer->size)
+				return npos;
+				
+			const char *ptr = &_buffer->data[pos];
+			const char *limit = &_buffer->data[string._buffer->size - 1];
+			
+			if(flags & HandleUtf8)
+			{
+				// TODO: Complete this part.
+				if(flags & CaseInsensitive)
+				{
+					char c = toLower(string._buffer->data[string._buffer->size - 1]);
+					do
+					{
+						if(toLower(*ptr) == c)
+						{
+							if(*(ptr + 1) != '\0' && !std::isspace(*(ptr + 1)))
+								continue;
+								
+							const char *p = &string._buffer->data[string._buffer->size - 1];
+							for(; p >= &string._buffer->data[0]; --p, --ptr)
+							{
+								if(toLower(*ptr) != toLower(*p))
+									break;
+									
+								if(p == &string._buffer->data[0])
+								{
+									if(ptr == _buffer->data || std::isspace(*(ptr - 1)))
+										return ptr - _buffer->data;
+									else
+										break;
+								}
+								
+								if(ptr == _buffer->data)
+									return npos;
+							}
+						}
+					}
+					while(--ptr > limit);
+				}
+				else
+				{
+					do
+					{
+						if(*ptr == string._buffer->data[string._buffer->size - 1])
+						{
+							if(*(ptr + 1) != '\0' && !std::isspace(*(ptr + 1)))
+								continue;
+								
+							const char *p = &string._buffer->data[string._buffer->size - 1];
+							for(; p >= &string._buffer->data[0]; --p, --ptr)
+							{
+								if(*ptr != *p)
+									break;
+									
+								if(p == &string._buffer->data[0])
+								{
+									if(ptr == _buffer->data || std::isspace(*(ptr - 1)))
+										return ptr - _buffer->data;
+									else
+										break;
+								}
+								
+								if(ptr == _buffer->data)
+									return npos;
+							}
+						}
+					}
+					while(ptr-- > limit);
+				}
+			}
+			
+			return npos;
+		}
+		
+		unsigned int String::findWord(const char *string, int start, Flags flags) const
+		{
+			if(!string || !string[0] || _buffer->size == 0)
+				return npos;
+				
+			if(start < 0)
+				start = std::max(static_cast<int>(_buffer->size + start), 0);
+				
+			unsigned int pos = static_cast<unsigned int>(start);
+			if(pos >= _buffer->size)
+				return npos;
+				
+			const char *ptr = _buffer->data;
+			if(flags & HandleUtf8)
+			{
+				// TODO: Complete this part.
+			}
+			else
+			{
+				if(flags & CaseInsensitive)
+				{
+					char c = toLower(string[0]);
+					do
+					{
+						if(toLower(*ptr) == c)
+						{
+							if(ptr != _buffer->data && !std::isspace(*(ptr - 1)))
+								continue;
+								
+							const char *p = &string[1];
+							const char *tPtr = ptr + 1;
+							while(true)
+							{
+								if(*p == '\0')
+								{
+									if(*tPtr == '\0' || std::isspace(*tPtr))
+										return ptr - _buffer->data;
+									else
+										break;
+								}
+								
+								if(toLower(*tPtr != toLower(*p)))
+									break;
+									
+								p++;
+								tPtr++;
+							}
+						}
+					}
+					while(*++ptr);
+				}
+				else
+				{
+					do
+					{
+						if(*ptr == string[0])
+						{
+							if(ptr != _buffer->data && !std::isspace(*(ptr - 1)))
+								continue;
+								
+							const char *p = &string[1];
+							const char *tPtr = ptr + 1;
+							while(true)
+							{
+								if(*p == '\0')
+								{
+									if(*tPtr == '\0' || std::isspace(*tPtr))
+										return ptr - _buffer->data;
+									else
+										break;
+								}
+								
+								if(*tPtr != *p)
+									break;
+									
+								p++;
+								tPtr++;
+							}
+						}
+					}
+					while(*++ptr);
+				}
+			}
+			
+			return npos;
+		}
+		
+		unsigned int String::findWord(const String &string, int start, Flags flags) const
+		{
+			if(string._buffer->size == 0 || string._buffer->size > _buffer->size)
+				return npos;
+				
+			if(start < 0)
+				start = std::max(static_cast<int>(_buffer->size + start), 0);
+				
+			unsigned int pos = static_cast<unsigned int>(start);
+			if(pos >= _buffer->size)
+				return npos;
+				
+			char *ptr = _buffer->data;
+			if(flags & HandleUtf8)
+			{
+				// TODO: Complete this part.
+			}
+			else
+			{
+				if(flags & CaseInsensitive)
+				{
+					char c = toLower(string._buffer->data[0]);
+					do
+					{
+						if(toLower(*ptr) == c)
+						{
+							if(ptr != _buffer->data && !std::isspace(*(ptr - 1)))
+								continue;
+								
+							const char *p = &string._buffer->data[1];
+							const char *tPtr = ptr + 1;
+							while(true)
+							{
+								if(*p == '\0')
+								{
+									if(*tPtr == '\0' || std::isspace(*tPtr))
+										return ptr - _buffer->data;
+									else
+										break;
+								}
+								
+								if(toLower(*tPtr) != toLower(*p))
+									break;
+									
+								p++;
+								tPtr++;
+							}
+						}
+					}
+					while(*++ptr);
+				}
+				else
+				{
+					while((ptr = std::strstr(ptr, string._buffer->data)))
+					{
+						if((ptr == _buffer->data || std::isspace(*(ptr - 1))) && (*(ptr + _buffer->size) == '\0' || std::isspace(*(ptr + _buffer->size))))
+							return ptr - _buffer->data;
+							
+						ptr++;
+					}
 				}
 			}
 			
