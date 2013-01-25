@@ -107,7 +107,7 @@ namespace WitchEngine
 			else
 				return false;
 				
-			wchar_t *path;
+			wchar_t *path = filePath.wideBuffer();;
 			_handle = CreateFileW(path, access, FILE_SHARE_READ, nullptr, openMode, 0, nullptr);
 			delete[] path;
 			
@@ -169,8 +169,8 @@ namespace WitchEngine
 		
 		bool FileImpl::copy(const String &sourcePath, const String &targetPath)
 		{
-			wchar_t *path;
-			wchar_t *newPath;
+			wchar_t *path = sourcePath.wideBuffer();
+			wchar_t *newPath = targetPath.wideBuffer();
 			bool success = CopyFileW(path, newPath, false);
 			delete[] path;
 			delete[] newPath;
@@ -186,7 +186,7 @@ namespace WitchEngine
 		
 		bool FileImpl::remove(const String &filePath)
 		{
-			wchar_t *path;
+			wchar_t *path = filePath.wideBuffer();;
 			bool success = DeleteFileW(path);
 			delete[] path;
 			
@@ -201,7 +201,7 @@ namespace WitchEngine
 		
 		bool FileImpl::exists(const String &filePath)
 		{
-			wchar_t *path;
+			wchar_t *path = filePath.wideBuffer();
 			HANDLE handle = CreateFileW(path, 0, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, 0, nullptr);
 			delete[] path;
 			
@@ -215,7 +215,7 @@ namespace WitchEngine
 		
 		std::time_t FileImpl::creationTime(const String &filePath)
 		{
-			wchar_t *path;
+			wchar_t *path = filePath.wideBuffer();
 			HANDLE handle = CreateFileW(path, 0, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, 0, nullptr);
 			delete[] path;
 			
@@ -238,7 +238,7 @@ namespace WitchEngine
 		
 		std::time_t FileImpl::lastAccessTime(const String &filePath)
 		{
-			wchar_t *path;
+			wchar_t *path = filePath.wideBuffer();
 			HANDLE handle = CreateFileW(path, 0, FILE_SHARE_READ, nullptr, OPEN_EXISTING, 0, nullptr);
 			delete[] path;
 			
@@ -261,7 +261,7 @@ namespace WitchEngine
 		
 		std::time_t FileImpl::lastWriteTime(const String &filePath)
 		{
-			wchar_t *path;
+			wchar_t *path = filePath.wideBuffer();
 			HANDLE handle = CreateFileW(path, 0, FILE_SHARE_READ, nullptr, OPEN_EXISTING, 0, nullptr);
 			delete[] path;
 			
@@ -284,7 +284,7 @@ namespace WitchEngine
 		
 		uint64 FileImpl::size(const String &filePath)
 		{
-			wchar_t *path;
+			wchar_t *path = filePath.wideBuffer();
 			HANDLE handle = CreateFileW(path, 0, FILE_SHARE_READ, nullptr, OPEN_EXISTING, 0, nullptr);
 			delete[] path;
 			
@@ -302,8 +302,8 @@ namespace WitchEngine
 		
 		bool FileImpl::rename(const String &sourcePath, const String &targetPath)
 		{
-			wchar_t *path;
-			wchar_t *newPath;
+			wchar_t *path = sourcePath.wideBuffer();
+			wchar_t *newPath = targetPath.wideBuffer();
 			
 			bool success = MoveFileExW(path, newPath, MOVEFILE_COPY_ALLOWED) != 0;
 			

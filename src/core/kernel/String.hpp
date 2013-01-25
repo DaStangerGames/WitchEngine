@@ -125,7 +125,7 @@ namespace WitchEngine
 				
 				bool isEmpty() const;
 				bool isNull() const;
-				bool isNumber(uint8 radix = 10, Flags flags = CaseInsensitive) const;
+				bool isNumber(uint8 base = 10, Flags flags = CaseInsensitive) const;
 				
 				bool match(const char *pattern) const;
 				bool match(const String &pattern) const;
@@ -149,6 +149,23 @@ namespace WitchEngine
 				
 				String simplified(Flags flags = None) const;
 				String& simplify(Flags flags = None);
+				
+				bool startsWith(char character, Flags flags = None) const;
+				bool startsWith(const char *string, Flags flags = None) const;
+				bool startsWith(const String &string, Flags flags = None) const;
+				
+				String substr(int startPos, int endPos = -1) const;
+				String substrFrom(char character, int startPos = 0, bool fromLast = false, bool include = false, Flags flags = None) const;
+				String substrFrom(const char *string, int startPos = 0, bool fromlast = false, bool include = false, Flags flags = None) const;
+				String substrFrom(const String &string, int startPos = 0, bool fromLast = false, bool include = false, Flags flags = None) const;
+				String substrTo(char character, int startPos = 0, bool toLast = false, bool include = false, Flags flags = None) const;
+				String substrTo(const char *string, int startPos = 0, bool toLast = false, bool include = false, Flags flags = None) const;
+				String substrTo(const String &string, int startPos = 0, bool toLast = false, bool include = false, Flags flags = None) const;
+				
+				String& trim(Flags flags = None);
+				String& trim(char character, Flags flags = None);
+				String trimmed(Flags flags = None) const;
+				String trimmed(char character, Flags flags = None) const;
 								
 				String& operator= (char character);
 				String& operator= (const char *string);

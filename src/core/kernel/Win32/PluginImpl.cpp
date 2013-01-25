@@ -49,7 +49,7 @@ namespace WitchEngine
 		{
 			String path = filePath;
 			
-			wchar_t *pathW;
+			wchar_t *pathW = path.wideBuffer();
 			_library = LoadLibraryExW(pathW, nullptr, LOAD_WITH_ALTERED_SEARCH_PATH);
 			delete[] pathW;
 			

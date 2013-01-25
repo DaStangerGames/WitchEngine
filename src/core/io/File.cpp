@@ -64,5 +64,337 @@ namespace WitchEngine
 		File::~File()
 		{
 		}
+		
+		bool File::copy(const String &newFilePath)
+		{
+			return copy(_filePath, newFilePath);
+		}
+		
+		void File::close()
+		{
+			_mutex.lock();
+			
+			if(_impl)
+			{
+				_impl->close();
+				delete _impl;
+				_impl = nullptr;
+			}
+		}
+		
+		bool File::remove()
+		{
+			_mutex.lock();
+			
+			close();
+			
+			return remove(_filePath);
+		}
+		
+		bool File::endOfFile() const
+		{
+			_mutex.lock();
+			
+			if(!isOpen())
+			{
+				// TODO: Throw an excpetion.
+				return false;
+			}
+			
+			return _impl->endOfFile();
+		}
+		
+		bool File::exists() const
+		{
+			_mutex.lock();
+			
+			if(isOpen())
+				return true;
+			else
+				return exists(_filePath);
+		}
+		
+		void File::flush()
+		{
+			_mutex.lock();
+			
+			if(!isOpen())
+			{
+				// TODO: Throw an exception.
+				return;
+			}
+			
+			if((_openMode & ReadWrite) == 0 && (_openMode & WriteOnly) == 0)
+			{
+				// TODO: Throw an exception.
+				return;
+			}
+			
+			_impl->flush();
+		}
+		
+		std::time_t File::creationTime() const
+		{
+			_mutex.lock();
+			
+			return creationTime(_filePath);
+		}
+		
+		uint64 File::cursorPos() const
+		{
+			_mutex.lock();
+			
+			if(!isOpen())
+			{
+				// TODO: Throw an excpetion.
+				return false;
+			}
+			
+			return _impl->cursorPos();
+		}
+		
+		std::time_t File::lastAccessTime() const
+		{
+			_mutex.lock();
+			
+			return lastAccessTime(_filePath);
+		}
+		
+		std::time_t File::lastWriteTime() const
+		{
+			_mutex.lock();
+			
+			return lastWriteTime(_filePath);
+		}
+		
+		String File::path() const
+		{
+			_mutex.lock();
+			
+			return _filePath;
+		}
+		
+		uint64 File::size() const
+		{
+			_mutex.lock();
+			
+			return size(_filePath);
+		}
+		
+		bool File::isOpen() const
+		{
+			_mutex.lock();
+			
+			return _impl != nullptr;
+		}
+		
+		bool File::open(OpenMode openMode)
+		{
+			_mutex.lock();
+			
+			close();
+			
+			if(_filePath.isEmpty())
+				return false;
+				
+			if(openMode != 0)
+				_openMode = openMode;
+				
+			if(_openMode == 0)
+				return false;
+				
+			_impl = new FileImpl;
+			if(!_impl->open(_filePath, openMode))
+			{
+				delete _impl;
+				_impl = nullptr;
+				
+				return false;
+			}
+			
+			return true;
+		}
+		
+		bool File::open(const String &filePath, OpenMode openMode)
+		{
+			_mutex.lock();
+			
+			close();
+			
+			if(filePath.isEmpty())
+				return false;
+			
+			if(!filePath.isEmpty())
+				_filePath = filePath;
+				
+			if(openMode != 0)
+				_openMode = openMode;
+				
+			if(_openMode == 0)
+				return false;
+				
+			_impl = new FileImpl;
+			if(!_impl->open(filePath, openMode))
+			{
+				delete _impl;
+				_impl = nullptr;
+				
+				return false;
+			}
+			
+			return true;
+		}
+		
+		uint64 File::read(char* buffer, uint64 maxSize)
+		{
+			_mutex.lock();
+			
+			if(!isOpen())
+			{
+				// TODO: Throw an exception.
+				return 0;
+			}
+			
+			if((_openMode & ReadOnly) == 0 && (_openMode & ReadWrite) == 0)
+			{
+				// TODO: Throw an excpetion.
+				return 0;
+			}
+			
+			if(maxSize == 0)
+				return 0;
+				
+			if(buffer)
+				return _impl->read(buffer, maxSize);
+			else
+			{
+				uint64 currentPos = _impl->cursorPos();
+				
+				_impl->setCursorPos(File::AtCurrent, maxSize);
+				
+				return _impl->cursorPos() - currentPos;
+			}
+		}
+		
+		bool File::rename(const String &filePath)
+		{
+			_mutex.lock();
+			
+			bool opened = isOpen();
+			close();
+			
+			bool success = rename(_filePath, filePath);
+			if(success)
+				_filePath = normalizePath(filePath);
+				
+			if(opened)
+				open();
+				
+			return success;
+		}
+		
+		bool File::copy(const String &sourcePath, const String &targetPath)
+		{
+			if(sourcePath.isEmpty() || targetPath.isEmpty())
+				return false;
+				
+			return FileImpl::copy(normalizePath(sourcePath), normalizePath(targetPath));
+		}
+		
+		bool File::remove(const String &filePath)
+		{
+			if(filePath.isEmpty())
+				return false;
+				
+			return FileImpl::remove(normalizePath(filePath));
+		}
+		
+		bool File::exists(const String &filePath)
+		{
+			if(filePath.isEmpty())
+				return false;
+				
+			return FileImpl::exists(normalizePath(filePath));
+		}
+		
+		std::time_t File::creationTime(const String &filePath)
+		{
+			if(filePath.isEmpty())
+				return 0;
+				
+			return FileImpl::creationTime(normalizePath(filePath));
+		}
+		
+		std::time_t File::lastAccessTime(const String &filePath)
+		{
+			if(filePath.isEmpty())
+				return 0;
+				
+			return FileImpl::lastAccessTime(normalizePath(filePath));
+		}
+		
+		std::time_t File::lastWriteTime(const String &filePath)
+		{
+			if(filePath.isEmpty())
+				return 0;
+				
+			return FileImpl::lastWriteTime(normalizePath(filePath));
+		}
+		
+		uint64 File::size(const String &filePath)
+		{
+			if(filePath.isEmpty())
+				return 0;
+				
+			return FileImpl::size(normalizePath(filePath));
+		}
+		
+		bool File::isAbsolute(const String &filePath)
+		{
+			String path(filePath.trimmed());
+			if(path.isEmpty())
+				return false;
+				
+			path = normalizeSeparators(path);
+			
+#if WITCHENGINE_PLATFORM == WITCHENGINE_PLATFORM_WIN32 || WITCHENGINE_PLATFORM == WITCHENGINE_PLATFORM_WIN64
+			if(path.match("?:*"))
+				return true;
+			else if(path.match("\\\\*"))
+				return true;
+			else if(path.startsWith('\\'))
+				return true;
+			else
+				return false;
+#else
+			return path.startsWith('/');
+#endif
+		}
+		
+		String File::normalizePath(const String &filePath)
+		{
+			
+		}
+		
+		String File::normalizeSeparators(const String &filePath)
+		{
+			String path(filePath);
+			
+#if WITCHENGINE_PLATFORM == WITCHENGINE_PLATFORM_WIN32 || WITCHENGINE_PLATFORM == WITCHENGINE_PLATFORM_WIN64
+			path.replace('/', '\\');
+#else
+			path.replace('\\', '/');
+#endif
+
+			return path;
+		}
+		
+		bool File::rename(const String &sourcePath, const String &targetPath)
+		{
+			if(sourcePath.isEmpty() || targetPath.isEmpty())
+				return false;
+				
+			return FileImpl::rename(normalizePath(sourcePath), normalizePath(targetPath));
+		}
 	}
 }

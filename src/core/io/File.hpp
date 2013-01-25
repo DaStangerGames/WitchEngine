@@ -64,6 +64,7 @@ namespace WitchEngine
 				
 				enum OpenModeFlags
 				{
+					Current = 0x00,
 					ReadOnly = 0x01,
 					WriteOnly = 0x02,
 					ReadWrite = ReadOnly | WriteOnly,
@@ -108,7 +109,7 @@ namespace WitchEngine
 				
 				bool isOpen() const;
 				
-				bool open(OpenMode openMode);
+				bool open(OpenMode openMode = Current);
 				bool open(const String &filePath, OpenMode openMode);
 				
 				uint64 read(char* buffer, uint64 maxSize);
@@ -135,12 +136,12 @@ namespace WitchEngine
 				static std::time_t lastWriteTime(const String &path);
 				static uint64 size(const String &path);
 				static bool isAbsolute(const String &path);
-				static String normalizeOath(const String &path);
+				static String normalizePath(const String &path);
 				static String normalizeSeparators(const String &path);
 				static bool rename(const String &sourcePath, const String &targetPath);
 				
 			private:
-				Mutex _mutex;
+				mutable Mutex _mutex;
 				
 				String _filePath;
 				FileImpl *_impl;
