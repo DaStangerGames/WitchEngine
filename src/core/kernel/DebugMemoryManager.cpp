@@ -30,6 +30,7 @@
 */
 
 #include "DebugMemoryManager.hpp"
+#include "Exception.hpp"
 
 namespace WitchEngine
 {
@@ -74,7 +75,7 @@ namespace WitchEngine
 			
 			if(it->second.Array != array)
 			{
-				// TODO: Throwing an excpetion.
+				throw WitchException("", __FILE__, FUNCTION, __LINE__);
 			}
 			
 			_blocks.erase(it);

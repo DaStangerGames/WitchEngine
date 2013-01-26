@@ -44,8 +44,8 @@ file(
 
 file(
 	GLOB_RECURSE
-	freetype_files
-	../../../../src/3rdparty/freetype/*
+	libpng_files
+	../../../../src/3rdparty/libpng/*
 )
 
 # Declaring the library.
@@ -53,5 +53,11 @@ add_library(
 	WitchCore
 	SHARED
 	${source_files}
-	${freetype_files}
+)
+
+set_target_properties(
+	WitchCore
+	PROPERTIES
+	PREFIX ""
+	IMPORT_SUFFIX ".a"
 )

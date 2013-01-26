@@ -95,19 +95,6 @@ namespace WitchEngine
 			Key_Z
 		};
 		
-		enum LoggingLevel
-		{
-			Information,
-			
-#if WITCHENGINE_DEBUG_MODE == 0x1
-			Debug,
-#endif
-			
-			Warning,
-			
-			Error
-		};
-		
 		enum KeyboardModifier
 		{
 			NoModifier = 0x00,

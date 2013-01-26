@@ -139,14 +139,14 @@ namespace WitchEngine
 
 // Creating shortcut to attributes.
 #	define FASTCALL __fastcall
-#	define FUNCTION
+#	define FUNCTION __FUNC__
 #elif defined(__GNUC__)
 #	define WITCHENGINE_COMPILER WITCHENGINE_COMPILER_GNUC
 #	define WITCHENGINE_COMPILER_VERSION	__GNUC__
 
 // Creating shortcut to attributes.
 #	define FASTCALL __attribute__((fastcall))
-#	define FUNCTION
+#	define FUNCTION	__FUNCTION__
 #endif
 
 // Checking the operating system.

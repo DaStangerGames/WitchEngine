@@ -35,7 +35,11 @@ namespace WitchEngine
 {
 	namespace Core
 	{
-		WitchException::WitchException(const String &message, const String &file, const String &function, uint32 line) throw()
+		WitchException::WitchException(const String &message, const String &file, const String &function, uint32 line) throw() :
+			_message(message),
+			_file(file),
+			_function(function),
+			_line(line)
 		{
 		}
 		
