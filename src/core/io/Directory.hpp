@@ -29,56 +29,66 @@
  *
 */
 
-#ifndef __WITCHENGINE_CORE_PLUGINLOADER_HPP__
-#define __WITCHENGINE_CORE_PLUGINLOADER_HPP__
+#ifndef __WITCHENGINE_CORE_DIRECTORY_HPP__
+#define __WITCHENGINE_CORE_DIRECTORY_HPP__
 
 #include <WitchCore/WitchGlobal.hpp>
-#
-#include "String.hpp"
+#include "../kernel/String.hpp"
+
+#if WITCHENGINE_PLATFORM == WITCHENGINE_PLATFORM_WIN32 || WITCHENGINE_PLATFORM == WITCHENGINE_PLATFORM_WIN64
+#	define WITCH_DIRECTORY_SEPARATOR '\\'
+#else
+#	deifne WITCH_DIRECTORY_SEPARATOR '/'
+#endif
+
+#include "../kernel/Mutex.hpp"
 
 namespace WitchEngine
 {
 	namespace Core
 	{
-		class WITCHENGINE_CORE_EXPORT IModule
-		{
-			public:
-				virtual ~IModule() = 0;
-				
-				virtual String versionString() const = 0;
-				virtual String author() const = 0;
-				virtual String name() const = 0;
-		};
-		
-		typedef IModule* (*ModuleFunc)();
-		
 		// Forward declaration.
-		class PluginImpl;
+		class DirectoryImpl;
 		
-		class WITCHENGINE_EXPORT Plugin
+		class WITCHENGINE_EXPORT Directory
 		{
 			public:
-				Plugin();
-				Plugin(const String &pluginPath);
-				~Plugin();
+				Directory();
+				Directory(const String &dirPath);
+				~Directory();
 				
-				bool load();
-				bool load(const String &pluginPath);
+				void close();
 				
-				void unload();
+				String pattern() const;
+				String resultName() const;
+				String resultPath() const;
+				uint64 resultSize() const;
 				
-				bool loaded() const;
+				bool isOpen() const;
+				bool isResultDirectory() const;
 				
-				String path() const;
-				void setPath(const String &path);
+				bool nextResult(bool skipDors = true);
 				
-				IModule* instance();
+				bool open();
+				
+				void setDirectory(const String &dirPath);
+				void setPattern(const String &pattern);
+				
+				static bool copy(const String &sourcePath, const String &destPath);
+				static bool create(const String &dirPath, bool recursive = false);
+				static bool exists(const String &dirPath);
+				static String current();
+				static bool remove(const String &dirPath, bool emptyDirectory = false);
+				static bool setCurrent(const String &dirPath);
 				
 			private:
-				PluginImpl *_impl;
-				String _pluginPath;
+				mutable Mutex _mutex;
+				
+				String _dirPath;
+				String _pattern;
+				DirectoryImpl *_impl;
 		};
 	}
 }
 
-#endif // __WITCHENGINE_COER_PLUGINLOADER_HPP__
+#endif // __WITCHENGINE_CORE_DIRECTORY_HPP__

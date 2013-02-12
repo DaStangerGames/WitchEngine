@@ -31,6 +31,8 @@
 
 #include "File.hpp"
 
+#include <vector>
+
 #if WITCHENGINE_PLATFORM == WITCHENGINE_PLATFORM_WIN32 || WITCHENGINE_PLATFORM == WITCHENGINE_PLATFORM_WIN64
 #	include "Win32/FileImpl.hpp"
 #else
@@ -63,6 +65,7 @@ namespace WitchEngine
 		
 		File::~File()
 		{
+			close();
 		}
 		
 		bool File::copy(const String &newFilePath)
@@ -276,6 +279,26 @@ namespace WitchEngine
 			}
 		}
 		
+		char* File::read(uint64 maxSize)
+		{
+			_mutex.lock();
+			
+			if(!isOpen())
+			{
+				// TODO: Throw an exception.
+				return nullptr;
+			}
+			
+			if((_openMode & ReadOnly) == 0 && (_openMode & ReadWrite) == 0)
+			{
+				// TODO: Throw an excpetion.
+				return nullptr;
+			}
+			
+			if(maxSize == 0)
+				return nullptr;
+		}
+		
 		bool File::rename(const String &filePath)
 		{
 			_mutex.lock();
@@ -291,6 +314,163 @@ namespace WitchEngine
 				open();
 				
 			return success;
+		}
+		
+		bool File::setCursorPos(CursorPosition pos, uint64 offset)
+		{
+			_mutex.lock();
+			
+			if(!isOpen())
+			{
+				// TODO: Throw an exception.
+				return false;
+			}
+			
+			return _impl->setCursorPos(pos, offset);
+		}
+		
+		bool File::setCursorPos(uint64 offset)
+		{
+			_mutex.lock();
+			
+			if(!isOpen())
+			{
+				// TODO: Throw an exception.
+				return false;
+			}
+			
+			return _impl->setCursorPos(AtBegin, offset);
+		}
+		
+		bool File::setPath(const String &filePath)
+		{
+			_mutex.lock();
+			
+			if(isOpen())
+			{
+				if(filePath.isEmpty())
+					return false;
+					
+				FileImpl *impl = new FileImpl;
+				if(!impl->open(filePath, _openMode))
+				{
+					delete _impl;
+					return false;
+				}
+				
+				_impl->close();
+				delete _impl;
+				
+				_impl = impl;
+			}
+			
+			_filePath = absolutePath(filePath);
+			return true;
+		}
+		
+		bool File::setOpenMode(OpenMode openMode)
+		{
+			_mutex.lock();
+			
+			if(_openMode == 0 || openMode == _openMode)
+				return true;
+				
+			if(isOpen())
+			{
+				FileImpl *impl = new FileImpl;
+				if(!impl->open(_filePath, openMode))
+				{
+					delete impl;
+					
+					return false;
+				}
+				
+				_impl->close();
+				delete _impl;
+				
+				_impl = impl;
+			}
+			
+			_openMode = openMode;
+			
+			return true;
+		}
+		
+		String File::absolutePath(const String &filePath)
+		{
+			String path = normalizePath(filePath);
+			if(path.isEmpty())
+				return String();
+				
+			String base;
+			unsigned int start;
+#if WITCHENGINE_PLATFORM == WITCHENGINE_PLATFORM_WIN32 || WITCHENGINE_PLATFORM == WITCHENGINE_PLATFORM_WIN64
+			if(path.match("?:*"))
+				start = 1;
+			else if(path.match("\\\\*"))
+			{
+				base = "\\\\";
+				start = 2;
+			}
+			else if(path.startsWith('\\'))
+			{
+				String drive = Directory::current().substrTo('\\');
+				String end = path.substr(1, -1);
+				if(end.isEmpty())
+					path = drive;
+				else
+					path = drive + '\\' + end;
+					
+				start = 1;
+			}
+			else
+			{
+				// Throw an exception.
+				return path;
+			}
+#else
+			base = '';
+			start = 0;
+#endif
+
+			static String upDir = WITCH_DIRECTORY_SEPARATOR + String('.');
+			
+			if(path.find(upDir) == String::npos)
+				return path;
+				
+			std::vector<String> sep;
+			if(path.split(sep, WITCH_DIRECTORY_SEPARATOR) <= 1)
+				return path;
+				
+			unsigned int pathLen = base.size();
+			for(unsigned int i = 0; i < sep.size(); ++i)
+			{
+				if(sep[i] == '.')
+					sep.erase(sep.begin() + i--);
+				else if(sep[i] == "..")
+				{
+					if(i > start)
+						sep.erase(sep.begin() - i--);
+						
+					sep.erase(sep.begin() + i--);
+				}
+				else
+					pathLen += sep[i].size();
+			}
+			
+			pathLen += sep.size() - 1;
+			
+			String stream;
+			stream.reserve(pathLen);
+			stream.append(base);
+			for(unsigned int i = 0; i < sep.size(); ++i)
+			{
+				stream.append(sep[i]);
+				if(i != sep.size() - 1)
+					stream.append(WITCH_DIRECTORY_SEPARATOR);
+			}
+			
+			return stream;
 		}
 		
 		bool File::copy(const String &sourcePath, const String &targetPath)
@@ -373,7 +553,15 @@ namespace WitchEngine
 		
 		String File::normalizePath(const String &filePath)
 		{
+			String path = normalizeSeparators(filePath.trimmed());
 			
+			if(!isAbsolute(path))
+				path = Directory::current() + WITCH_DIRECTORY_SEPARATOR + path;
+				
+			while(path.endsWith(WITCH_DIRECTORY_SEPARATOR))
+				path.resize(-1);
+				
+			return path;
 		}
 		
 		String File::normalizeSeparators(const String &filePath)

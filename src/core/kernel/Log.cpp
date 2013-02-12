@@ -43,7 +43,7 @@ namespace WitchEngine
 		}
 		
 		Log::Log(const String &name) :
-			_file(String("Engine/").append(name).append(".log")),
+			_file("Engine/" + name + ".log"),
 			_defaultll(Information),
 			_name(name)
 		{
@@ -94,6 +94,22 @@ namespace WitchEngine
 		void Log::writeMessage(const String &message)
 		{
 			writeMessage(message, _defaultll);
+		}
+		
+		void Log::setName(const String &name)
+		{
+			if(_file.isOpen())
+				_file.close();
+				
+			_file.setPath(String("Engine/").append(name).append(".log"));
+			
+			if(_file.open(File::WriteOnly))
+				_name = name;
+		}
+		
+		String Log::name() const
+		{
+			return _name;
 		}
 	}
 }

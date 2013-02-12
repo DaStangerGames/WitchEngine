@@ -35,6 +35,7 @@
 #include <WitchCore/WitchGlobal.hpp>
 #
 #
+#include "Directory.hpp"
 #include "../kernel/String.hpp"
 #include "../kernel/Mutex.hpp"
 #

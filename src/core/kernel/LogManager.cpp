@@ -29,56 +29,59 @@
  *
 */
 
-#ifndef __WITCHENGINE_CORE_PLUGINLOADER_HPP__
-#define __WITCHENGINE_CORE_PLUGINLOADER_HPP__
-
-#include <WitchCore/WitchGlobal.hpp>
-#
-#include "String.hpp"
+#include "LogManager.hpp"
+#include "LogManager.hpp"
 
 namespace WitchEngine
 {
 	namespace Core
 	{
-		class WITCHENGINE_CORE_EXPORT IModule
+		LogManager::LogManager()
 		{
-			public:
-				virtual ~IModule() = 0;
-				
-				virtual String versionString() const = 0;
-				virtual String author() const = 0;
-				virtual String name() const = 0;
-		};
+			_loggers["Default"] = new Log("Engine");
+		}
 		
-		typedef IModule* (*ModuleFunc)();
-		
-		// Forward declaration.
-		class PluginImpl;
-		
-		class WITCHENGINE_EXPORT Plugin
+		LogManager::~LogManager()
 		{
-			public:
-				Plugin();
-				Plugin(const String &pluginPath);
-				~Plugin();
-				
-				bool load();
-				bool load(const String &pluginPath);
-				
-				void unload();
-				
-				bool loaded() const;
-				
-				String path() const;
-				void setPath(const String &path);
-				
-				IModule* instance();
-				
-			private:
-				PluginImpl *_impl;
-				String _pluginPath;
-		};
+			for(std::map<std::string, Log *>::iterator it = _loggers.begin();
+				it != _loggers.end();
+				++it)
+			{
+				delete it->second;
+			}
+		}
+		
+		Log* LogManager::create(const String &logName)
+		{
+			Log *newLogger = new Log(logName);
+			
+			_loggers[logName] = newLogger;
+		}
+		
+		Log* LogManager::log(const String &logName)
+		{
+			return _loggers[logName];
+		}
+		
+		void LogManager::destroy(const String &logName)
+		{
+			std::map<std::string, Log *>::iterator it = _loggers.find(logName);
+			
+			Log *log = it->second;
+			
+			_loggers.erase(it);
+			
+			delete log;
+		}
+		
+		Log* LogManager::defaultLog()
+		{
+			return _loggers["Default"];
+		}
+		
+		void LogManager::setDefaultLog(Log *newDefaultLog)
+		{
+			_loggers["Default"] = newDefaultLog;
+		}
 	}
 }
-
-#endif // __WITCHENGINE_COER_PLUGINLOADER_HPP__

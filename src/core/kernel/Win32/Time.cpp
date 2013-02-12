@@ -29,56 +29,27 @@
  *
 */
 
-#ifndef __WITCHENGINE_CORE_PLUGINLOADER_HPP__
-#define __WITCHENGINE_CORE_PLUGINLOADER_HPP__
-
-#include <WitchCore/WitchGlobal.hpp>
-#
-#include "String.hpp"
+#include "Time.hpp"
 
 namespace WitchEngine
 {
 	namespace Core
 	{
-		class WITCHENGINE_CORE_EXPORT IModule
+		std::time_t FileTimeToTime(FILETIME *time)
 		{
-			public:
-				virtual ~IModule() = 0;
-				
-				virtual String versionString() const = 0;
-				virtual String author() const = 0;
-				virtual String name() const = 0;
-		};
-		
-		typedef IModule* (*ModuleFunc)();
-		
-		// Forward declaration.
-		class PluginImpl;
-		
-		class WITCHENGINE_EXPORT Plugin
-		{
-			public:
-				Plugin();
-				Plugin(const String &pluginPath);
-				~Plugin();
-				
-				bool load();
-				bool load(const String &pluginPath);
-				
-				void unload();
-				
-				bool loaded() const;
-				
-				String path() const;
-				void setPath(const String &path);
-				
-				IModule* instance();
-				
-			private:
-				PluginImpl *_impl;
-				String _pluginPath;
-		};
+			SYSTEMTIME stUTC, stLocal;
+			SystemTimeToTzSpecificLocalTime(nullptr, &stUTC, &stLocal);
+			
+			std::tm timeinfo;
+			timeinfo.tm_sec = stLocal.wSecond;
+			timeinfo.tm_min = stLocal.wMinute;
+			timeinfo.tm_hour = stLocal.wHour;
+			timeinfo.tm_mday = stLocal.wDay;
+			timeinfo.tm_mon = stLocal.wMonth - 1;
+			timeinfo.tm_year = stLocal.wYear - 1900;
+			timeinfo.tm_isdst = -1;
+			
+			return std::mktime(&timeinfo);
+		}
 	}
 }
-
-#endif // __WITCHENGINE_COER_PLUGINLOADER_HPP__

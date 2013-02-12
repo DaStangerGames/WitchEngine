@@ -29,56 +29,44 @@
  *
 */
 
-#ifndef __WITCHENGINE_CORE_PLUGINLOADER_HPP__
-#define __WITCHENGINE_CORE_PLUGINLOADER_HPP__
+#ifndef __WITCHENGINE_CORE_DIRECTORY_IMPL_HPP__
+#define __WITCHENGINE_CORE_DIRECTORY_IMPL_HPP__
 
 #include <WitchCore/WitchGlobal.hpp>
 #
-#include "String.hpp"
+#include "../../kernel/String.hpp"
+#
+#include <Windows.h>
 
 namespace WitchEngine
 {
 	namespace Core
 	{
-		class WITCHENGINE_CORE_EXPORT IModule
+		class DirectoryImpl
 		{
 			public:
-				virtual ~IModule() = 0;
+				void close();
 				
-				virtual String versionString() const = 0;
-				virtual String author() const = 0;
-				virtual String name() const = 0;
-		};
-		
-		typedef IModule* (*ModuleFunc)();
-		
-		// Forward declaration.
-		class PluginImpl;
-		
-		class WITCHENGINE_EXPORT Plugin
-		{
-			public:
-				Plugin();
-				Plugin(const String &pluginPath);
-				~Plugin();
+				String resultName() const;
+				uint64 resultSize() const;
 				
-				bool load();
-				bool load(const String &pluginPath);
+				bool isResultDirectory() const;
 				
-				void unload();
+				bool nextResult();
 				
-				bool loaded() const;
+				bool open(const String &dirPath);
 				
-				String path() const;
-				void setPath(const String &path);
-				
-				IModule* instance();
+				static bool create(const String &dirPath);
+				static bool exists(const String &dirPath);
+				static String current();
+				static bool remove(const String &dirPath);
 				
 			private:
-				PluginImpl *_impl;
-				String _pluginPath;
+				HANDLE _handle;
+				WIN32_FIND_DATAW _result;
+				bool _firstCall;
 		};
 	}
 }
 
-#endif // __WITCHENGINE_COER_PLUGINLOADER_HPP__
+#endif // __WITCHENGINE_CORE_DIRECTORY_HPP__

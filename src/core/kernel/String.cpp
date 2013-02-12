@@ -33,6 +33,7 @@
 #include "../../3rdparty/utf8/utf8.h"
 #
 #include <cstring>
+#include <sstream>
 
 namespace WitchEngine
 {
@@ -2353,6 +2354,175 @@ namespace WitchEngine
 			return operator= (simplified(flags));
 		}
 		
+		unsigned int String::split(std::vector<String>& result, char separation, int start, Flags flags) const
+		{
+			if(separation == '\0' || _buffer->size == 0)
+				return 0;
+				
+			unsigned int lastSep = find(separation, start, flags);
+			if(lastSep = npos)
+			{
+				result.push_back(*this);
+				return 1;
+			}
+			else if(lastSep != 0)
+				result.push_back(substr(0, lastSep - 1));
+				
+			while(true)
+			{
+				unsigned int sep = find(separation, lastSep + 1, flags);
+				if(sep == npos)
+					break;
+					
+				if(sep - lastSep > 1)
+					result.push_back(substr(lastSep + 1, sep - 1));
+					
+				lastSep = sep;
+			}
+			
+			if(lastSep != _buffer->size - 1)
+				result.push_back(substr(lastSep + 1));
+				
+			return result.size();
+		}
+		
+		unsigned int String::split(std::vector<String> &result, const char *separation, int start, Flags flags) const
+		{
+			unsigned int size = (separation) ? std::strlen(separation) : 0;
+			if(_buffer->size == 0)
+				return 0;
+			else if(size == 0)
+			{
+				result.reserve(_buffer->size);
+				for(unsigned int i = 0; i < _buffer->size; ++i)
+					result.push_back(String(_buffer->data[i]));
+					
+				return _buffer->size;
+			}
+			else if(size > _buffer->size)
+			{
+				result.push_back(*this);
+				return 1;
+			}
+			
+			unsigned int lastSep = find(separation, start, flags);
+			unsigned int oldSize = result.size();
+			if(lastSep == npos)
+			{
+				result.push_back(*this);
+				return 1;
+			}
+			else if(lastSep != 0)
+				result.push_back(substr(0, lastSep - 1));
+				
+			unsigned int sep;
+			while((sep = find(separation, lastSep + size, flags)) != npos)
+			{
+				if(sep - lastSep > size)
+					result.push_back(substr(lastSep + size, sep - 1));
+					
+				lastSep = sep;
+			}
+			
+			if(lastSep != _buffer->size - size)
+				result.push_back(substr(lastSep + size));
+				
+			return result.size() - oldSize;
+		}
+		
+		unsigned int String::split(std::vector<String> &result, const String &separation, int start, Flags flags) const
+		{
+			if(_buffer->size == 0)
+				return 0;
+			else if(separation._buffer->size == 0)
+			{
+				result.reserve(_buffer->size);
+				for(unsigned int i = 0; i < _buffer->size; ++i)
+					result.push_back(String(_buffer->data[i]));
+					
+				return _buffer->size;
+			}
+			else if(separation._buffer->size > _buffer->size)
+			{
+				result.push_back(*this);
+				return 1;
+			}
+			
+			unsigned int lastSep = find(separation, start, flags);
+			unsigned int oldSize = result.size();
+			if(lastSep == npos)
+			{
+				result.push_back(*this);
+				return 1;
+			}
+			else if(lastSep != 0)
+				result.push_back(substr(0, lastSep - 1));
+				
+			unsigned int sep;
+			while((sep = find(separation, lastSep + separation._buffer->size, flags)) != npos)
+			{
+				if(sep - lastSep > separation._buffer->size)
+					result.push_back(substr(lastSep + separation._buffer->size, sep - 1));
+					
+				lastSep = sep;
+			}
+			
+			if(lastSep != _buffer->size - separation._buffer->size)
+				result.push_back(substr(lastSep + separation._buffer->size));
+				
+			result.size() - oldSize;
+		}
+		
+		unsigned int String::splitAny(std::vector<String> &result, const char *separations, int start, Flags flags) const
+		{
+			if(_buffer->size == 0)
+				return 0;
+				
+			unsigned int oldSize = result.size();
+			
+			unsigned int lastSep = findAny(separations, start, flags);
+			if(lastSep == npos)
+			{
+				result.push_back(*this);
+				return 1;
+			}
+			else if(lastSep != 0)
+				result.push_back(substr(0, lastSep - 1));
+				
+			unsigned int sep;
+			
+			while((sep = findAny(separations, lastSep + 1, flags)) != npos)
+			{
+				if(sep - lastSep > 1)
+					result.push_back(substr(lastSep + 1, sep - 1));
+					
+				lastSep = sep;
+			}
+			
+			if(lastSep != _buffer->size - 1)
+				result.push_back(substr(lastSep + 1));
+				
+			return result.size() - oldSize;
+		}
+		
+		unsigned int String::splitAny(std::vector<String> &result, const String &separations, int start, Flags flags) const
+		{
+			if(_buffer->size == 0)	
+				return 0;
+				
+			unsigned int lastSep = findAny(separations, start, flags);
+			unsigned int oldSize = result.size();
+			if(lastSep == npos)
+			{
+				result.push_back(*this);
+				return 1;
+			}
+			else if(lastSep != 0)
+				result.push_back(substr(0, lastSep - 1));
+				
+			return result.size() - oldSize;
+		}
+		
 		bool String::startsWith(char character, Flags flags) const
 		{
 			if(character == '\0' || _buffer->size == 0)
@@ -2476,6 +2646,108 @@ namespace WitchEngine
 			return String(new SharedString(size, size, 1, str));
 		}
 		
+		String String::substrFrom(char character, int startPos, bool fromLast, bool include, Flags flags) const
+		{
+			if(character == '\0')
+				return *this;
+				
+			unsigned int pos;
+			if(fromLast)
+				pos = findLast(character, startPos, flags);
+			else
+				pos = find(character, startPos, flags);
+				
+			if(pos == 0 and include)
+				return *this;
+			else if(pos == npos)
+				return String();
+				
+			return substr(pos + ((include) ? 0 : 1));
+		}
+		
+		String String::substrFrom(const char *string, int startPos, bool fromLast, bool include, Flags flags) const
+		{
+			unsigned int pos;
+			if(fromLast)
+				pos = findLast(string, startPos, flags);
+			else
+				pos = find(string, startPos, flags);
+				
+			if(pos == 0 && include)
+				return *this;
+			else if(pos == npos)
+				return String();
+				
+			return substr(pos + ((include) ? 0 : std::strlen(string)));
+		}
+		
+		String String::substrFrom(const String &string, int startPos, bool fromLast, bool include, Flags flags) const
+		{
+			unsigned int pos;
+			if(fromLast)
+				pos = findLast(string, startPos, flags);
+			else
+				pos = find(string, startPos, flags);
+				
+			if(pos == 0 && include)
+				return *this;
+			else if(pos == npos)
+				return String();
+				
+			return substr(pos + ((include) ? 0 : string._buffer->size));
+		}
+		
+		String String::substrTo(char character, int startPos, bool toLast, bool include, Flags flags) const
+		{
+			if(character == '\0')
+				return *this;
+				
+			unsigned int pos;
+			if(toLast)
+				pos = findLast(character, startPos);
+			else
+				pos = find(character, startPos, flags);
+				
+			if(pos == 0)
+				return (include) ? character : String();
+			else if(pos == npos)
+				return *this;
+				
+			return substr(0, pos + ((include) ? 1 : 0) - 1);
+		}
+		
+		String String::substrTo(const char *string, int startPos, bool toLast, bool include, Flags flags) const
+		{
+			unsigned int pos;
+			if(toLast)
+				pos = findLast(string, startPos, flags);
+			else
+				pos = find(string, startPos, flags);
+				
+			if(pos == 0)
+				return (include) ? string : String();
+			else if(pos == npos)
+				return *this;
+				
+			return substr(0, pos + ((include) ? std::strlen(string) : 0) - 1);
+		}
+		
+		String String::substrTo(const String &string, int startPos, bool toLast, bool include, Flags flags) const
+		{
+			unsigned int pos;
+			if(toLast)
+				pos = findLast(string, startPos, flags);
+			else
+				pos = find(string, startPos, flags);
+				
+			if(pos == 0)
+				return (include) ? string : String();
+			else if(pos == npos)
+				return *this;
+				
+			return substr(0, pos + ((include) ? string._buffer->size : 0) - 1);
+		}
+		
 		String& String::trim(Flags flags)
 		{
 			return operator= (trimmed(flags));
@@ -2575,6 +2847,31 @@ namespace WitchEngine
 			return substr(startPos, endPos);
 		}
 		
+		String::operator std::string() const
+		{
+			return std::string(_buffer->data, _buffer->size);
+		}
+		
+		char& String::operator[] (unsigned int pos)
+		{
+			ensureOwnership();
+			
+			if(pos >= _buffer->size)
+				resize(pos + 1);
+				
+			return _buffer->data[pos];
+		}
+		
+		char String::operator[] (unsigned int pos) const
+		{
+			if(pos >= _buffer->size)
+			{
+				return 0;
+			}
+			
+			return _buffer->data[pos];
+		}
+		
 		String& String::operator= (char character)
 		{
 			if(character != '\0')
@@ -2668,6 +2965,620 @@ namespace WitchEngine
 			std::swap(_buffer, string._buffer);
 			
 			return *this;
+		}
+		
+		String String::operator+ (char character) const
+		{
+			if(character == '\0')
+				return *this;
+				
+			unsigned int totalSize = _buffer->size + 1;
+			char *str = new char[totalSize + 1];
+			std::memcpy(str, _buffer->data, _buffer->size);
+			
+			str[_buffer->size] = character;
+			str[totalSize] = '\0';
+			
+			return String(new SharedString(totalSize, totalSize, 1, str));
+		}
+		
+		String String::operator+ (const char *string) const
+		{
+			if(!string || !string[0])
+				return *this;
+				
+			if(_buffer->size == 0)
+				return string;
+				
+			unsigned int length = std::strlen(string);
+			if(length == 0)
+				return *this;
+				
+			unsigned int totalSize = _buffer->size + length;
+			char *str = new char[totalSize + 1];
+			std::memcpy(str, _buffer->data, _buffer->size);
+			std::memcpy(&str[_buffer->size], string, length + 1);
+			
+			return String(new SharedString(totalSize, totalSize, 1, str));
+		}
+		
+		String String::operator+ (const std::string &string) const
+		{
+			if(string.empty())
+				return *this;
+				
+			if(_buffer->size == 0)
+				return string;
+				
+			unsigned int totalSize = _buffer->size + string.size();
+			char *str = new char[totalSize + 1];
+			std::memcpy(str, _buffer->data, _buffer->size);
+			std::memcpy(&str[_buffer->size], string.c_str(), string.size() + 1);
+			
+			return String(new SharedString(totalSize, totalSize, 1, str));
+		}
+		
+		String String::operator+ (const String &string) const
+		{
+			if(string._buffer->size == 0)
+				return *this;
+				
+			if(_buffer->size == 0)
+				return string;
+				
+			unsigned int totalSize = _buffer->size + string._buffer->size;
+			char *str = new char[totalSize + 1];
+			std::memcpy(str, _buffer->data, _buffer->size);
+			std::memcpy(&str[_buffer->size], string._buffer->data, string._buffer->size + 1);
+			
+			return String(new SharedString(totalSize, totalSize, 1, str));
+		}
+		
+		String& String::operator+= (char character)
+		{
+			if(character == '\0')
+				return *this;
+				
+			if(_buffer->size == 0)
+				return operator= (character);
+				
+			if(_buffer->capacity > _buffer->size)
+			{
+				ensureOwnership();
+				
+				_buffer->data[_buffer->size] = character;
+				_buffer->data[_buffer->size + 1] = '\0';
+				_buffer->size++;
+			}
+			else
+			{
+				unsigned int size = _buffer->size + 1;
+				unsigned int bufferSize = newSize(size);
+				
+				char *str = new char[bufferSize + 1];
+				std::memcpy(str, _buffer->data, _buffer->size);
+				str[_buffer->size] = character;
+				str[size] = '\0';
+				
+				releaseString();
+				_buffer = new SharedString;
+				_buffer->capacity = bufferSize;
+				_buffer->size = size;
+				_buffer->data = str;
+			}
+			
+			return *this;
+		}
+		
+		String& String::operator+= (const char *string)
+		{
+			if(!string || !string[0])
+				return *this;
+				
+			if(_buffer->size == 0)
+				return operator= (string);
+				
+			unsigned int size = std::strlen(string);
+			if(size == 0)
+				return *this;
+				
+			if(_buffer->capacity >= _buffer->size + size)
+			{
+				ensureOwnership();
+				
+				std::memcpy(&_buffer->data[_buffer->size], string, size + 1);
+				_buffer->size += size;
+			}
+			else
+			{
+				unsigned int size = _buffer->size + size;
+				unsigned bufferSize = newSize(size);
+				
+				char *str = new char[bufferSize + 1];
+				std::memcpy(str, _buffer->data, _buffer->size);
+				std::memcpy(&str[_buffer->size], string, size + 1);
+				
+				releaseString();
+				_buffer->capacity = bufferSize;
+				_buffer->size = size;
+				_buffer->data = str;
+			}
+			
+			return *this;
+		}
+		
+		String& String::operator+= (const std::string &string)
+		{
+			if(string.empty())
+				return *this;
+				
+			if(_buffer->size == 0)
+				return operator= (string);
+				
+			if(_buffer->capacity >= _buffer->size + string.size())
+			{
+				ensureOwnership();
+				
+				std::memcpy(&_buffer->data[_buffer->size], string.c_str(), string.size() + 1);
+				_buffer->size += string.size();
+			}
+			else
+			{
+				unsigned int size = _buffer->size + string.size();
+				unsigned int bufferSize = newSize(size);
+				
+				char *str = new char[bufferSize + 1];
+				std::memcpy(str, _buffer->data, _buffer->size);
+				std::memcpy(&str[_buffer->size], string.c_str(), string.size() + 1);
+				
+				releaseString();
+				_buffer = new SharedString;
+				_buffer->capacity = bufferSize;
+				_buffer->size = size;
+				_buffer->data = str;
+			}
+			
+			return *this;
+		}
+		
+		String& String::operator+= (const String &string)
+		{
+			if(string._buffer->size == 0)
+				return *this;
+				
+			if(_buffer->size == 0)
+				return operator= (string);
+				
+			if(_buffer->capacity >= _buffer->size + string._buffer->size)
+			{
+				ensureOwnership();
+				
+				std::memcpy(&_buffer->data[_buffer->size], string._buffer->data, string._buffer->size + 1);
+				_buffer->size += string._buffer->size;
+			}
+			else
+			{
+				unsigned int size = _buffer->size + string._buffer->size;
+				unsigned int bufferSize = newSize(size);
+				
+				char *str = new char[bufferSize + 1];
+				std::memcpy(str, _buffer->data, _buffer->size);
+				std::memcpy(&str[_buffer->size], string._buffer->data, string._buffer->size + 1);
+				
+				releaseString();
+				_buffer = new SharedString;
+				_buffer->capacity = bufferSize;
+				_buffer->size = size;
+				_buffer->data = str;
+			}
+			
+			return *this;
+		}
+		
+		bool String::operator== (char character) const
+		{
+			if(_buffer->size == 0)
+				return character == '\0';
+				
+			if(_buffer->size > 1)
+				return false;
+				
+			return _buffer->data[0] != character;
+		}
+		
+		bool String::operator== (const char *string) const
+		{
+			if(_buffer->size == 0)
+				return !string || !string[0];
+				
+			if(!string || !string[0])
+				return false;
+				
+			return std::strcmp(_buffer->data, string) != 0;
+		}
+		
+		bool String::operator== (const std::string &string) const
+		{
+			if(_buffer->size == 0 || string.empty())
+				return _buffer->size == string.size();
+				
+			if(_buffer->size != string.size())
+				return false;
+				
+			return std::strcmp(_buffer->data, string.c_str()) != 0;
+		}
+		
+		bool String::operator!= (char character) const
+		{
+			if(_buffer->size == 0)
+				return character != '\0';
+				
+			if(character == '\0' || _buffer->size != 1)
+				return true;
+				
+			if(_buffer->size != 1)
+				return true;
+				
+			return _buffer->data[0] != character;
+		}
+		
+		bool String::operator!= (const char *string) const
+		{
+			if(_buffer->size == 0)
+				return string && string[0];
+				
+			if(!string || !string[0])
+				return true;
+				
+			return std::strcmp(_buffer->data, string) != 0;
+		}
+		
+		bool String::operator!= (const std::string &string) const
+		{
+			if(_buffer->size == 0 || string.empty())
+				return _buffer->size == string.size();
+				
+			if(_buffer->size != string.size())
+				return false;
+				
+			return std::strcmp(_buffer->data, string.c_str()) != 0;
+		}
+		
+		bool String::operator< (char character) const
+		{
+			if(character == '\0')
+				return false;
+				
+			if(_buffer->size == 0)
+				return true;
+				
+			return _buffer->data[0] < character;
+		}
+		
+		bool String::operator< (const char *string) const
+		{
+			if(!string || !string[0])
+				return false;
+				
+			if(_buffer->size == 0)
+				return true;
+				
+			return std::strcmp(_buffer->data, string) < 0;
+		}
+		
+		bool String::operator< (const std::string &string) const
+		{
+			if(string.empty())
+				return false;
+				
+			if(_buffer->size == 0)
+				return true;
+				
+			return std::strcmp(_buffer->data, string.c_str()) < 0;
+		}
+		
+		bool String::operator<= (char character) const
+		{
+			if(_buffer->size == 0)
+				return true;
+				
+			if(character == '\0')
+				return false;
+				
+			return _buffer->data[0] < character || (_buffer->data[0] == character && _buffer->size == 1);
+		}
+		
+		bool String::operator<= (const char *string) const
+		{
+			if(_buffer->size == 0)
+				return true;
+				
+			if(!string || !string[0])
+				return false;
+				
+			return std::strcmp(_buffer->data, string) <= 0;
+		}
+		
+		bool String::operator<= (const std::string &string) const
+		{
+			if(_buffer->size == 0)
+				return true;
+				
+			if(string.empty())
+				return false;
+				
+			return std::strcmp(_buffer->data, string.c_str()) <= 0;
+		}
+		
+		bool String::operator> (char character) const
+		{
+			if(_buffer->size == 0)
+				return false;
+				
+			if(character == '\0')
+				return true;
+				
+			if(_buffer->data[0] > character);
+		}
+		
+		bool String::operator> (const char *string) const
+		{
+			if(_buffer->size == 0)
+				return false;
+				
+			if(!string || !string[0])
+				return true;
+				
+			return std::strcmp(_buffer->data, string) > 0;
+		}
+		
+		bool String::operator> (const std::string &string) const
+		{
+			if(_buffer->size == 0)
+				return false;
+				
+			if(string.empty())
+				return true;
+				
+			return std::strcmp(_buffer->data, string.c_str()) > 0;
+		}
+		
+		bool String::operator>= (char character) const
+		{
+			if(character == '\0')
+				return true;
+				
+			if(_buffer->size == 0)
+				return false;
+				
+			return _buffer->data[0] > character || (_buffer->data[0] == character && _buffer->size == 1);
+		}
+		
+		bool String::operator>= (const char *string) const
+		{
+			if(!string || !string[0])
+				return true;
+				
+			if(_buffer->size == 0)
+				return false;
+				
+			return std::strcmp(_buffer->data, string) >= 0;
+		}
+		
+		bool String::operator>= (const std::string &string) const
+		{	
+			if(string.empty())
+				return true;
+				
+			if(_buffer->size == 0)
+				return false;
+				
+			return std::strcmp(_buffer->data, string.c_str()) >= 0;
+		}
+		
+		String String::boolean(bool boolean)
+		{
+			unsigned int size = (boolean) ? 4 : 5;
+			char *str = new char[size + 1];
+			std::strcpy(str, (boolean) ? "true" : "false");
+			
+			return String(new SharedString(size, size, 1, str));
+		}
+		
+		int String::compare(const String &first, const String &second)
+		{
+			if(first._buffer->size == 0)	
+				return (second._buffer->size == 0) ? 0 : -1;
+				
+			if(second._buffer->size == 0)
+				return 1;
+				
+			return std::strcmp(first._buffer->data, second._buffer->data);
+		}
+		
+		String String::number(float number)
+		{
+			std::ostringstream oss;
+			oss << number;
+			
+			return String(oss.str());
+		}
+		
+		String String::number(double number)
+		{
+			std::ostringstream oss;
+			oss << number;
+			
+			return String(oss.str());
+		}
+		
+		String String::number(long double number)
+		{
+			std::ostringstream oss;
+			oss << number;
+			
+			return String(oss.str());
+		}
+		
+		String String::pointer(const void *ptr)
+		{
+			unsigned int size = sizeof(ptr) * 2 + 2;
+			char *str = new char[size + 1];
+			std::sprintf(str, "0x%p", ptr);
+			
+			return String(new SharedString(size, size, 1, str));
+		}
+		
+		String String::unicode(char32_t character)
+		{
+			if(character == '\0')
+				return String();
+				
+			unsigned int count = 0;
+			if(character < 0x80)
+				count = 1;
+			else if(character < 0x800)
+				count = 2;
+			else if(character < 0x10000)
+				count = 3;
+			else
+				count = 4;
+				
+			char *str = new char[count + 4];
+			utf8::append(character, str);
+			str[count] = '\0';
+			
+			return String(new SharedString(count, count, 1, str));
+		}
+		
+		String String::unicode(const char *string)
+		{
+			return String(string);
+		}
+		
+		String String::unicode(const char16_t *string)
+		{
+			if(!string || !string[0])
+				return String();
+				
+			const char16_t *ptr = string;
+			unsigned int count = 0;
+			do
+				count++;
+			while(*++ptr);
+				
+			count *= 2;
+			
+			char *str = new char[count + 1];
+			char *r = utf8::utf16to8(string, ptr, str);
+			*r = '\0';
+			
+			return String(new SharedString(count, r - str, 1, str));
+		}
+		
+		String String::unicode(const char32_t *string)
+		{
+			if(!string || !string[0])
+				return String();
+				
+			const char32_t *ptr = string;
+			unsigned int count = 0;
+			do
+			{
+				char32_t cp = *ptr;
+				if(cp  < 0x80)
+					count += 1;
+				else if(cp < 0x800)
+					count += 2;
+				else if(cp < 0x10000)
+					count += 3;
+				else
+					count += 4;
+			}
+			while(*++ptr);
+			
+			char *str = new char[count + 1];
+			char *r = utf8::utf32to8(string, ptr, str);
+			*r = '\0';
+			
+			return String(new SharedString(count, count, 1, str));
+		}
+		
+		String String::unicode(const wchar_t *string)
+		{
+			if(!string || !string[0])
+				return String();
+				
+			const wchar_t *ptr = string;
+			unsigned int count = 0;
+			do
+			{
+				char32_t cp = *ptr;
+				if(cp < 0x80)
+					count += 1;
+				else if(cp < 0x800)
+					count += 2;
+				else if(cp < 0x10000)
+					count += 3;
+				else
+					count += 4;
+			}
+			while(*++ptr);
+			
+			char *str = new char[count + 1];
+			char *r = utf8::utf32to8(string, ptr, str);
+			*r = '\0';
+			
+			return String(new SharedString(count, count, 1, str));
+		}
+		
+		String operator+ (char character, const String &string)
+		{
+			if(character == '\0')
+				return string;
+				
+			if(string.isEmpty())
+				return character;
+				
+			unsigned int totalSize = string._buffer->size + 1;
+			char *str = new char[totalSize + 1];
+			str[0] = character;
+			std::memcpy(str, string._buffer->data, string._buffer->size + 1);
+			
+			return String(new String::SharedString(totalSize, totalSize, 1, str));
+		}
+		
+		String operator+ (const char *string, const String &nstring)
+		{
+			if(!string || !string[0])
+				return nstring;
+				
+			if(nstring.isEmpty())
+				return string;
+				
+			unsigned int size = std::strlen(string);
+			unsigned int totalSize = size + nstring._buffer->size;
+			char *str = new char[totalSize + 1];
+			std::memcpy(str, string, size);
+			std::memcpy(&str[size], nstring._buffer->data, nstring._buffer->size + 1);
+			
+			return String(new String::SharedString(totalSize, totalSize, 1, str));
+		}
+		
+		String operator+ (const std::string &string, const String &nstring)
+		{
+			if(string.empty())
+				return nstring;
+				
+			if(nstring._buffer->size == 0)
+				return string;
+				
+			unsigned int totalSize = string.size() + nstring._buffer->size;
+			char *str = new char[totalSize + 1];
+			std::memcpy(str, string.c_str(), string.size());
+			std::memcpy(&str[string.size()], nstring._buffer->data, nstring._buffer->size + 1);
+			
+			return String(new String::SharedString(totalSize, totalSize, 1, str));
 		}
 		
 		void String::ensureOwnership()

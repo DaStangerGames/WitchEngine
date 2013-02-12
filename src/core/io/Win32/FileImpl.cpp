@@ -30,8 +30,11 @@
 */
 
 #include "../File.hpp"
-
+#
 #include "FileImpl.hpp"
+#include "../../kernel/Win32/Time.hpp"
+#
+#include <cstring>
 
 namespace WitchEngine
 {
@@ -125,6 +128,20 @@ namespace WitchEngine
 				return 0;
 		}
 		
+		char* FileImpl::read(uint64 size)
+		{
+			char *buffer;
+			if(ReadFile(_handle, buffer, size, nullptr, nullptr))
+			{
+				return buffer;
+			}
+			else
+			{
+				delete buffer;
+				return nullptr;
+			}
+		}
+		
 		bool FileImpl::setCursorPos(File::CursorPosition pos, uint64 offset)
 		{
 			DWORD moveMethod;
@@ -165,6 +182,20 @@ namespace WitchEngine
 			UnlockFile(_handle, pos.LowPart, pos.HighPart, maxSize, 0);
 			
 			return written;
+		}
+		
+		uint64 FileImpl::write(const char *buffer)
+		{
+			DWORD written = 0;
+			
+			LARGE_INTEGER pos;
+			pos.QuadPart = cursorPos();
+			
+			std::size_t size = std::strlen(buffer);
+			
+			LockFile(_handle, pos.LowPart, pos.HighPart, size, 0);
+			WriteFile(_handle, buffer, size, &written, nullptr);
+			UnlockFile(_handle, pos.LowPart, pos.HighPart, size, 0);
 		}
 		
 		bool FileImpl::copy(const String &sourcePath, const String &targetPath)
@@ -233,7 +264,7 @@ namespace WitchEngine
 			
 			CloseHandle(handle);
 			
-			// TODO: parse return value.
+			return FileTimeToTime(&creationTime);
 		}
 		
 		std::time_t FileImpl::lastAccessTime(const String &filePath)
@@ -256,7 +287,7 @@ namespace WitchEngine
 			
 			CloseHandle(handle);
 			
-			// TODO: Parse return value.
+			return FileTimeToTime(&accessTime);
 		}
 		
 		std::time_t FileImpl::lastWriteTime(const String &filePath)
@@ -279,7 +310,7 @@ namespace WitchEngine
 			
 			CloseHandle(handle);
 			
-			// TODO: Parse the return value.
+			return FileTimeToTime(&writeTime);
 		}
 		
 		uint64 FileImpl::size(const String &filePath)

@@ -53,6 +53,7 @@ add_library(
 	WitchCore
 	SHARED
 	${source_files}
+	${libpng_files}
 )
 
 set_target_properties(

@@ -150,6 +150,12 @@ namespace WitchEngine
 				String simplified(Flags flags = None) const;
 				String& simplify(Flags flags = None);
 				
+				unsigned int split(std::vector<String>& result, char separation = ' ', int start = 0, Flags flags = None) const;
+				unsigned int split(std::vector<String>& result, const char *separation, int start = 0, Flags flags = None) const;
+				unsigned int split(std::vector<String>& result, const String &separation, int start = 0, Flags flags = None) const;
+				unsigned int splitAny(std::vector<String>& result, const char *separations, int start = 0, Flags flags = None) const;
+				unsigned int splitAny(std::vector<String>& result, const String &separatios, int start = 0, Flags flags = None) const;
+				
 				bool startsWith(char character, Flags flags = None) const;
 				bool startsWith(const char *string, Flags flags = None) const;
 				bool startsWith(const String &string, Flags flags = None) const;
@@ -166,12 +172,118 @@ namespace WitchEngine
 				String& trim(char character, Flags flags = None);
 				String trimmed(Flags flags = None) const;
 				String trimmed(char character, Flags flags = None) const;
+				
+				char* begin();
+				const char* begin() const;
+				char* end();
+				const char* end() const;
+				void push_front(char c);
+				void push_back(char c);
+				
+				operator std::string() const;
+				
+				char& operator[] (unsigned int pos);
+				char operator[] (unsigned int pos) const;
 								
 				String& operator= (char character);
 				String& operator= (const char *string);
 				String& operator= (const std::string &string);
 				String& operator= (const String &string);
 				String& operator= (String &&string) noexcept;
+				
+				String operator+ (char character) const;
+				String operator+ (const char *string) const;
+				String operator+ (const std::string &string) const;
+				String operator+ (const String &string) const;
+				
+				String& operator+= (char character);
+				String& operator+= (const char *character);
+				String& operator+= (const std::string &string);
+				String& operator+= (const String &string);
+				
+				bool operator== (char character) const;
+				bool operator== (const char *string) const;
+				bool operator== (const std::string &string) const;
+				
+				bool operator!= (char character) const;
+				bool operator!= (const char *string) const;
+				bool operator!= (const std::string &string) const;
+				
+				bool operator< (char character) const;
+				bool operator< (const char *string) const;
+				bool operator< (const std::string &string) const;
+				
+				bool operator<= (char character) const;
+				bool operator<= (const char *character) const;
+				bool operator<= (const std::string &string) const;
+				
+				bool operator> (char character) const;
+				bool operator> (const char *string) const;
+				bool operator> (const std::string &string) const;
+				
+				bool operator>= (char character) const;
+				bool operator>= (const char *character) const;
+				bool operator>= (const std::string &string) const;
+				
+				static String boolean(bool boolean);
+				static int compare(const String &first, const String &second);
+				static String number(float number);
+				static String number(double number);
+				static String number(long double number);
+				static String number(signed char number, uint8 radix = 10);
+				static String number(unsigned char number, uint8 radix = 10);
+				static String number(short number, uint8 radix = 10);
+				static String number(unsigned short number, uint8 radix = 10);
+				static String number(int number, uint8 radix = 10);
+				static String number(unsigned int number, uint8 radix = 10);
+				static String number(long number, uint8 radix = 10);
+				static String number(unsigned long number, uint8 radix = 10);
+				static String number(long long number, uint8 radix = 10);
+				static String number(unsigned long long number, uint8 radix = 10);
+				static String pointer(const void *ptr);
+				static String unicode(char32_t character);
+				static String unicode(const char *string);
+				static String unicode(const char16_t *string);
+				static String unicode(const char32_t *string);
+				static String unicode(const wchar_t *string);
+				
+				WITCHENGINE_EXPORT friend std::istream& operator>> (std::istream &in, String &stirng);
+				WITCHENGINE_EXPORT friend std::ostream& operator<< (std::ostream &out, const String &stirng);
+				
+				WITCHENGINE_EXPORT friend String operator+ (char character, const String &nstring);
+				WITCHENGINE_EXPORT friend String operator+ (const char *string, const String &nstring);
+				WITCHENGINE_EXPORT friend String operator+ (const std::string& string, const String &nstring);
+				
+				WITCHENGINE_EXPORT friend bool operator== (const String &first, const String &second);
+				WITCHENGINE_EXPORT friend bool operator!= (const String &first, const String &second);
+				WITCHENGINE_EXPORT friend bool operator< (const String &first, const String &second);
+				WITCHENGINE_EXPORT friend bool operator<= (const String &first, const String &second);
+				WITCHENGINE_EXPORT friend bool operator> (const String &first, const String &second);
+				WITCHENGINE_EXPORT friend bool operator>= (const String &first, const String &second);
+				
+				WITCHENGINE_EXPORT friend bool operator== (char character, const String &nstirng);
+				WITCHENGINE_EXPORT friend bool operator== (const char *string, const String &nstring);
+				WITCHENGINE_EXPORT friend bool operator== (const std::string &stirng, const String &nstring);
+				
+				WITCHENGINE_EXPORT friend bool operator!= (char character, const String &nstring);
+				WITCHENGINE_EXPORT friend bool operator!= (const char *string, const String &nstring);
+				WITCHENGINE_EXPORT friend bool operator!= (const std::string &string, const String &nstring);
+				
+				WITCHENGINE_EXPORT friend bool operator< (char character, const String &nstirng);
+				WITCHENGINE_EXPORT friend bool operator< (const char *string, const String &nstring);
+				WITCHENGINE_EXPORT friend bool operator< (const std::string &string, const String &nstring);
+				
+				WITCHENGINE_EXPORT friend bool operator<= (char character, const String &nstirng);
+				WITCHENGINE_EXPORT friend bool operator<= (const char *string, const String &nstring);
+				WITCHENGINE_EXPORT friend bool operator<= (const std::string &string, const String &nstring);
+				
+				WITCHENGINE_EXPORT friend bool operator> (char character, const String &nstirng);
+				WITCHENGINE_EXPORT friend bool operator> (const char *string, const String &nstring);
+				WITCHENGINE_EXPORT friend bool operator> (const std::string &string, const String &nstring);
+				
+				WITCHENGINE_EXPORT friend bool operator>= (char character, const String &nstirng);
+				WITCHENGINE_EXPORT friend bool operator>= (const char *string, const String &nstring);
+				WITCHENGINE_EXPORT friend bool operator>= (const std::string &string, const String &nstring);
 				
 				// Declaration of above forward declaration.
 				struct WITCHENGINE_CORE_EXPORT SharedString

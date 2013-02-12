@@ -29,56 +29,18 @@
  *
 */
 
-#ifndef __WITCHENGINE_CORE_PLUGINLOADER_HPP__
-#define __WITCHENGINE_CORE_PLUGINLOADER_HPP__
+#ifndef __WITCHENGINE_CORE_TIME_HPP__
+#define __WITCHENGINE_CORE_TIME_HPP__
 
-#include <WitchCore/WitchGlobal.hpp>
-#
-#include "String.hpp"
+#include <ctime>
+#include <windows.h>
 
 namespace WitchEngine
 {
 	namespace Core
 	{
-		class WITCHENGINE_CORE_EXPORT IModule
-		{
-			public:
-				virtual ~IModule() = 0;
-				
-				virtual String versionString() const = 0;
-				virtual String author() const = 0;
-				virtual String name() const = 0;
-		};
-		
-		typedef IModule* (*ModuleFunc)();
-		
-		// Forward declaration.
-		class PluginImpl;
-		
-		class WITCHENGINE_EXPORT Plugin
-		{
-			public:
-				Plugin();
-				Plugin(const String &pluginPath);
-				~Plugin();
-				
-				bool load();
-				bool load(const String &pluginPath);
-				
-				void unload();
-				
-				bool loaded() const;
-				
-				String path() const;
-				void setPath(const String &path);
-				
-				IModule* instance();
-				
-			private:
-				PluginImpl *_impl;
-				String _pluginPath;
-		};
+		std::time_t FileTimeToTime(FILETIME *time);
 	}
 }
 
-#endif // __WITCHENGINE_COER_PLUGINLOADER_HPP__
+#endif // __WITCHENGINE_CORE_TIME_HPP__
